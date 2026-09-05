@@ -224,3 +224,194 @@ class VantageSalesDashboard(models.Model):
             'domain': [('is_split_child', '=', True)],
             'target': 'current',
         }
+
+    def action_load_turnkey_seed_data(self):
+        """1-Click Turnkey Seed Data Generator for DealFlow360 Live Demo (Section 8)"""
+        partner_obj = self.env['res.partner'].sudo()
+        warehouse_obj = self.env['stock.warehouse'].sudo()
+        product_obj = self.env['product.product'].sudo()
+        quant_obj = self.env['stock.quant'].sudo()
+        upsell_obj = self.env['vantage.upsell.rule'].sudo() if 'vantage.upsell.rule' in self.env else None
+
+        # 1. Seed Dedicated Customer Tiers
+        partners_data = [
+            ('Acme Corp (Bronze Tier)', 'bronze', 'acme_bronze@dealflow360.demo'),
+            ('Beta Industries (Silver Tier)', 'silver', 'beta_silver@dealflow360.demo'),
+            ('Cyberdyne Systems (Gold VIP)', 'gold', 'cyberdyne_gold@dealflow360.demo'),
+        ]
+        for name, tier, email in partners_data:
+            p = partner_obj.search([('name', '=', name)], limit=1)
+            if not p:
+                partner_obj.create({
+                    'name': name,
+                    'customer_tier': tier,
+                    'email': email,
+                    'customer_rank': 1,
+                })
+            else:
+                p.write({'customer_tier': tier})
+
+        # Auto-classify existing standard demo partners so reps can pick any contact
+        existing_map = {
+            'Azure Interior': 'gold',
+            'Deco Addict': 'silver',
+            'Gemini Furniture': 'bronze',
+            'Ready Mat': 'bronze',
+            'The Jackson Group': 'silver',
+            'Lumber Inc': 'gold',
+            'Test Gold VIP Client': 'gold',
+            'Test Bronze Client': 'bronze',
+        }
+        for pname, tier in existing_map.items():
+            ep = partner_obj.search([('name', 'ilike', pname)], limit=1)
+            if ep:
+                ep.write({'customer_tier': tier})
+
+        # 2. Seed Warehouses & Cost Weights
+        main_wh = warehouse_obj.search([('code', '=', 'MAIN')], limit=1)
+        if not main_wh:
+            wh_default = warehouse_obj.search([], limit=1)
+            if wh_default:
+                wh_default.write({
+                    'name': 'Main Warehouse',
+                    'code': 'MAIN',
+                    'shipping_cost_weight': 1.0,
+                    'base_shipping_cost': 25.0,
+                })
+                main_wh = wh_default
+            else:
+                main_wh = warehouse_obj.create({
+                    'name': 'Main Warehouse',
+                    'code': 'MAIN',
+                    'shipping_cost_weight': 1.0,
+                    'base_shipping_cost': 25.0,
+                })
+        else:
+            main_wh.write({'name': 'Main Warehouse', 'shipping_cost_weight': 1.0, 'base_shipping_cost': 25.0})
+
+        east_wh = warehouse_obj.search([('code', '=', 'EAST')], limit=1)
+        if not east_wh:
+            east_wh = warehouse_obj.search([('name', 'ilike', 'Chicago')], limit=1)
+            if east_wh:
+                east_wh.write({
+                    'name': 'East Depot',
+                    'code': 'EAST',
+                    'shipping_cost_weight': 2.5,
+                    'base_shipping_cost': 60.0,
+                })
+            else:
+                east_wh = warehouse_obj.create({
+                    'name': 'East Depot',
+                    'code': 'EAST',
+                    'shipping_cost_weight': 2.5,
+                    'base_shipping_cost': 60.0,
+                })
+        else:
+            east_wh.write({'name': 'East Depot', 'shipping_cost_weight': 2.5, 'base_shipping_cost': 60.0})
+
+        # 3. Seed Demo Products
+        # Hardware: DealFlow Enterprise Server (Storable)
+        server_prod = product_obj.search([('name', '=', 'DealFlow Enterprise Server')], limit=1)
+        if not server_prod:
+            server_prod = product_obj.create({
+                'name': 'DealFlow Enterprise Server',
+                'type': 'product',
+                'list_price': 2500.0,
+                'standard_price': 1500.0,
+                'default_code': 'DF-SRV-01',
+            })
+        else:
+            server_prod.write({'list_price': 2500.0, 'standard_price': 1500.0, 'type': 'product'})
+
+        # Service: Enterprise Setup & Deployment
+        setup_prod = product_obj.search([('name', '=', 'Enterprise Setup & Deployment')], limit=1)
+        if not setup_prod:
+            setup_prod = product_obj.create({
+                'name': 'Enterprise Setup & Deployment',
+                'type': 'service',
+                'list_price': 1200.0,
+                'standard_price': 800.0,
+                'default_code': 'DF-SRV-SET',
+            })
+
+        # Subscription: DealFlow360 SaaS License
+        sub_prod = product_obj.search([('name', '=', 'DealFlow360 SaaS Annual License')], limit=1)
+        if not sub_prod:
+            sub_prod = product_obj.create({
+                'name': 'DealFlow360 SaaS Annual License',
+                'type': 'service',
+                'list_price': 600.0,
+                'standard_price': 50.0,
+                'default_code': 'DF-SAAS-ANN',
+            })
+
+        # Upsell Option: 24/7 Mission-Critical SLA Warranty
+        sla_prod = product_obj.search([('name', '=', '24/7 Mission-Critical SLA Warranty')], limit=1)
+        if not sla_prod:
+            sla_prod = product_obj.create({
+                'name': '24/7 Mission-Critical SLA Warranty',
+                'type': 'service',
+                'list_price': 450.0,
+                'standard_price': 100.0,
+                'default_code': 'DF-SLA-247',
+            })
+
+        # 4. Seed Stock Quants for Server Product (5 at Main WH, 15 at East Depot)
+        main_loc = main_wh.lot_stock_id
+        east_loc = east_wh.lot_stock_id
+        quant_mode = self.env['stock.quant'].with_context(inventory_mode=True).sudo()
+        if main_loc and server_prod:
+            curr_main = server_prod.with_context(location=main_loc.id).free_qty
+            if curr_main != 5.0:
+                q_main = quant_mode.search([('product_id', '=', server_prod.id), ('location_id', '=', main_loc.id)], limit=1)
+                if not q_main:
+                    q_main = quant_mode.create({
+                        'product_id': server_prod.id,
+                        'location_id': main_loc.id,
+                        'inventory_quantity': 5.0,
+                    })
+                else:
+                    q_main.inventory_quantity = 5.0
+                q_main.action_apply_inventory()
+
+        if east_loc and server_prod:
+            curr_east = server_prod.with_context(location=east_loc.id).free_qty
+            if curr_east != 15.0:
+                q_east = quant_mode.search([('product_id', '=', server_prod.id), ('location_id', '=', east_loc.id)], limit=1)
+                if not q_east:
+                    q_east = quant_mode.create({
+                        'product_id': server_prod.id,
+                        'location_id': east_loc.id,
+                        'inventory_quantity': 15.0,
+                    })
+                else:
+                    q_east.inventory_quantity = 15.0
+                q_east.action_apply_inventory()
+
+        # 5. Seed Upsell Pairing Rule
+        if upsell_obj and server_prod and sla_prod:
+            rule = upsell_obj.search([('source_product_id', '=', server_prod.id), ('recommended_product_id', '=', sla_prod.id)], limit=1)
+            if not rule:
+                upsell_obj.create({
+                    'name': 'Server -> 24/7 SLA Warranty Upsell',
+                    'source_product_id': server_prod.id,
+                    'recommended_product_id': sla_prod.id,
+                    'margin_contribution': 350.0,
+                    'promoted_tag': 'Hot Deal (78% Margin)',
+                })
+
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('⚡ Turnkey Seed Data Ready!'),
+                'message': _(
+                    'Pre-seeded Bronze/Silver/Gold accounts, Main Warehouse (5 units stock, $25 base) '
+                    '& East Depot (15 units stock, $60 base), Demo Products, and Smart Upsell Rules.'
+                ),
+                'sticky': False,
+                'type': 'success',
+                'next': {'type': 'ir.actions.act_window_reload'}
+            }
+        }
+

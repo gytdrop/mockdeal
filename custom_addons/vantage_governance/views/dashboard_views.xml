@@ -21,6 +21,9 @@
                                 <p class="text-muted mb-0">Central hub, links out to every module below</p>
                             </div>
                             <div>
+                                <button type="object" name="action_load_turnkey_seed_data" class="btn btn-warning px-3 py-2 fw-bold shadow-sm me-2">
+                                    <i class="fa fa-bolt me-1"/>⚡ Load Turnkey Seed Data
+                                </button>
                                 <button type="object" name="action_new_quotation" class="btn btn-primary px-4 py-2 fw-bold shadow-sm me-2">
                                     <i class="fa fa-plus me-2"/>New Quotation
                                 </button>
