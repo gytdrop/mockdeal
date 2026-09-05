@@ -9,131 +9,109 @@ The work is split into two completely independent workstreams for **Akthar** and
 
 ```mermaid
 graph TD
-    subgraph Core [hackathon_core - FROZEN]
-        DQ[dealflow.quote]
-        DQL[dealflow.quote.line]
-        DP[dealflow.product]
+    subgraph Core [vantage_core - BASE FROZEN]
+        SO[sale.order: blended_risk_score, risk_approval_state, is_recurring_hybrid]
+        SOL[sale.order.line: line_risk_score, is_subscription_item]
+        MENU[Top-Level VantageOps App Menu & Category Tabs]
     end
 
-    subgraph FeatureA [hackathon_feature_a - AKTHAR]
-        DTA[dealflow.discount.tier]
-        DAL[dealflow.approval.log]
-        DHA[dealflow.deal.health]
-        BRS[Blended Risk Score Engine]
-        APPR[Multi-tier Approvals: Manager & Finance]
-        PORTAL[Customer Negotiation Portal / Web Controller]
-        DASH[Deal Health & Anomaly Dashboard]
+    subgraph Governance [vantage_governance - AKTHAR]
+        RP[res.partner: customer_tier Bronze/Silver/Gold]
+        APPR[Two-Tier Approval Chain: Sales Manager & Finance Director]
+        PORTAL[Customer Negotiation Portal: /my/orders with counter-offer & lock]
+        DASH[Executive Sales Cockpit & Deal Health: vantage.sales.dashboard]
+        WIZ[Bargain Pitch Engine: vantage.bargain.wizard]
     end
 
-    subgraph FeatureB [hackathon_feature_b - ASHRITH]
-        DWH[dealflow.warehouse & stock]
-        DFS[dealflow.fulfillment.split]
-        DSP[dealflow.subscription.plan]
-        DBS[dealflow.billing.schedule]
-        DUR[dealflow.upsell.rule]
-        SPLIT[Stock-aware Warehouse Split Engine]
-        BILL[Hybrid Billing & Proration Engine]
-        UPSELL[Live Upsell & Cross-sell Intelligence]
+    subgraph Fulfillment [vantage_fulfillment - ASHRITH]
+        SPLIT[Warehouse Split Engine: action_split_fulfillments]
+        WH[Multi-Warehouse Stock Deficit & Backorder Routing]
+        BILL[Hybrid Billing Engine: vantage.billing.schedule]
+        UPSELL[Live Upsell Engine: vantage.upsell.rule & margin_delta]
     end
 
-    DQ --> BRS
-    DQ --> APPR
-    DQ --> PORTAL
-    DQ --> DASH
-    DQ --> SPLIT
-    DQ --> BILL
-    DQ --> UPSELL
+    SO --> APPR
+    SO --> PORTAL
+    SO --> DASH
+    SO --> WIZ
+    SO --> SPLIT
+    SO --> BILL
+    SO --> UPSELL
 ```
 
 ---
 
-## 2. Phase 0: Core Foundation (`hackathon_core` - COMPLETED & FROZEN)
-- [x] Base quotation model `dealflow.quote` with status workflow, customer details, and computed totals.
-- [x] Base line model `dealflow.quote.line` with product links, quantities, margins, and subtotal math.
-- [x] Product catalog `dealflow.product` categorized into Hardware, Service, and Subscription.
-- [x] Base Tree, Form, and Kanban pipeline views with extensible `<notebook>` container.
-- [x] Security access permissions in `ir.model.access.csv`.
+## 2. Phase 0: Core Foundation (`vantage_core` - COMPLETED & FROZEN)
+- [x] Base quotation model extension on `sale.order` with `blended_risk_score`, `risk_approval_state`, and `is_recurring_hybrid`.
+- [x] Base line model extension on `sale.order.line` with `line_risk_score` and `is_subscription_item`.
+- [x] Extensible form view inheritance via unique XPath targets (`page_akthar_approvals`, `page_ashrith_fulfillment`).
+- [x] Top-level 9-grid application launcher and navbar tabs under `custom_addons/vantage_core/views/menus.xml`.
 
 ---
 
-## 3. Akthar's Workstream (`hackathon_feature_a`)
+## 3. Akthar's Workstream (`vantage_governance`)
 
-### Milestone A1: Discount Ceilings & Configuration
-- **Model**: `dealflow.discount.tier`
-  - Fields: `customer_tier` (Bronze, Silver, Gold), `category_type` (Hardware, Service, Subscription), `max_discount_allowed`, `manager_approval_threshold`, `finance_approval_threshold`.
-  - Default rules:
-    - Bronze: up to 5% standard (Hardware: 5%, Service: 3%)
-    - Silver: up to 10% standard (Hardware: 10%, Service: 7%)
-    - Gold: up to 15% standard (Hardware: 15%, Service: 10%)
-- **UI**: Configuration menu under `DealFlow360 > Configuration > Discount Tiers`.
+### Milestone A1: Customer Tiers & Dynamic Ceilings
+- **Model**: `res.partner`
+  - Fields: `customer_tier` (`bronze` 5%, `silver` 10%, `gold` 15%).
+  - Editable via Partner form and quotation "Risk & Approvals" tab with visual badges.
 
 ### Milestone A2: Blended Discount Risk Score Engine
 - **Logic**:
-  - Check each line: if line discount > line category ceiling for customer tier, flag violation points.
-  - Calculate cumulative order margin erosion: total dollar discount given across all lines divided by gross margin baseline.
-  - Formula:
-    $$\text{Blended Risk Score} = \max(\text{Line Violations}) \times 0.6 + (\text{Cumulative Margin Loss \%}) \times 0.4$$
-  - Assign `risk_level`:
-    - `<= 0`: Low (No approval required)
-    - `0 < score <= 10`: Medium (Requires Sales Manager approval)
-    - `> 10`: High (Requires Sales Manager followed by Finance approval)
+  - Compares each line's discount against the customer tier ceiling.
+  - Penalizes excess breaches beyond tier ceilings while allowing compliant discounts without false risk triggers.
+  - Two-tier routing:
+    - `score <= 0`: Low / Compliant (No approval required)
+    - `0 < score <= 10`: Moderate Risk (Requires Frontline Sales Manager approval)
+    - `score > 10`: High Risk (Auto-escalates to Finance Director approval)
 
-### Milestone A3: Multi-Tier Approval Chain & Audit Trail
-- **Model**: `dealflow.approval.log`
-  - Fields: `quote_id`, `user_id`, `action` (Requested, Manager Approved, Finance Approved, Rejected), `timestamp`, `reason`, `risk_score_at_action`.
-- **Workflow on `dealflow.quote`**:
-  - `action_submit_approval()`: Automatically routes quote to `pending_manager` or `pending_finance` based on risk score.
-  - `action_approve_manager()`: Advances to `pending_finance` if required, or directly to `approved`.
-  - `action_approve_finance()`: Confirms finance sign-off, advances to `approved`.
-  - `action_reject(reason)`: Prompts for rejection reason, logs entry, sets state to `rejected` or returns to `draft`.
-- **UI**: Risk badge on form header, Approval/Rejection buttons, and Audit Log tab.
+### Milestone A3: Two-Tier Approval Chain & Chatter Escalation
+- **Methods**:
+  - `action_confirm()`: Intercepts order confirmation; raises `UserError` and schedules `mail.activity` if high-risk and unapproved.
+  - `action_manager_approve()`: Signs off on manager tier or escalates to Finance.
+  - `action_finance_approve()`: Signs off on finance director tier.
+  - `action_manager_reject()`: Rejects quotation with audit trail feedback logged to Chatter.
 
-### Milestone A4: Customer Negotiation Portal
-- **Web Controller**: `controllers/portal.py`
-  - Route: `/dealflow/portal/<token>` (Dedicated, restricted customer-facing web view).
-  - Features:
-    - View quotation line items and totals.
-    - Propose line-level counter discount or whole-quote counter.
-    - Add negotiation comments / remarks.
-    - Submit counter or Accept terms with 1-click.
-- **Auto Re-Routing**:
-  - If counter terms exceed discount thresholds, quotation automatically transitions back to `pending_manager` / `pending_finance`.
+### Milestone A4: Customer Negotiation Portal & Bargain Pitch
+- **Portal & Controllers**:
+  - Route: `/my/orders/<id>` and `/dealflow/counter_offer`.
+  - Line-item counter-discount proposals directly on the portal page.
+  - Circuit-breaker lock after max negotiation rounds (default 3 rounds).
+  - Automatic re-routing to `pending_approval` if customer counter exceeds allowed thresholds.
+  - Internal bargain pitch wizard (`vantage.bargain.wizard`) for rep/admin concession counter-proposals.
 
-### Milestone A5: Deal Health & Anomaly Dashboard
-- **Model**: `dealflow.deal.health`
-  - Track stalled quotations (inactive for $>X$ days, default 3 days).
-  - Detect discount anomalies (quote discount exceeds rep's historical average by $>5\%$).
-  - Delivery promise slippage alerts.
-  - Automated "Nudge Rep" / "Escalate" action button.
+### Milestone A5: Executive Sales Cockpit & Deal Health
+- **Model**: `vantage.sales.dashboard`
+  - Bootstrap 5 full-width cockpit with real-time KPI metrics, pipeline counts, risk distributions, and quick-action drilldowns.
+  - Deal Health badges: `healthy`, `stalled` (>3 days inactive), `margin_bleed`.
+  - `action_nudge_rep()` automated activity dispatcher.
 
 ---
 
-## 4. Ashrith's Workstream (`hackathon_feature_b`)
+## 4. Ashrith's Workstream (`vantage_fulfillment`)
 
-### Milestone B1: Multi-Warehouse & Stock Architecture
-- **Models**:
-  - `dealflow.warehouse`: Code, Name, Location, Shipping Cost Weight factor.
-  - `dealflow.warehouse.stock`: Warehouse ID, Product ID, Available Quantity, Replenishment Threshold.
-- **Data**: Seed data for "Main Warehouse" (high inventory, low shipping weight) and "East Depot" (regional stock).
+### Milestone B1: Multi-Warehouse Stock Awareness
+- **Model Extensions**:
+  - `sale.order.line`: `free_qty_today`, `requires_split`, `deficit_qty`, `fulfillment_warehouse_id`.
+  - Evaluates primary warehouse stock vs `product_uom_qty`.
 
-### Milestone B2: Multi-Warehouse Fulfillment Splitting Engine
-- **Model**: `dealflow.fulfillment.split`
-  - Fields: `quote_id`, `line_id`, `product_id`, `warehouse_id`, `quantity_allocated`, `shipping_cost`.
-- **Splitting Algorithm**:
-  - Evaluates stock availability across warehouses.
-  - Prioritizes warehouses that can fulfill full order lines to minimize total shipment count.
-  - Applies warehouse shipping weight factors to calculate estimated shipping cost.
-  - Manual override capability: Ops user can reassign quantities between warehouses.
-- **Backorder Consolidation**:
-  - If item is partially in stock, marks remaining quantity as backorder.
-  - When replenishment arrives, triggers "Consolidate Remaining Backorder" prompt to bundle into single shipment.
+### Milestone B2: Auto-Split Fulfillment & Backorder Forking
+- **Method**: `action_split_fulfillments()`
+  - Truncates primary warehouse line to available stock (`is_split_parent`).
+  - Forks deficit quantity to a secondary warehouse line (`is_split_child`).
+  - Automatically flags `has_split_requirement` on the quotation.
 
-### Milestone B3: Hybrid Billing & Subscription Proration
-- **Models**:
-  - `dealflow.subscription.plan`: Plan name, Billing Period (Monthly, Quarterly, Annual), Proration Policy.
-  - `dealflow.billing.schedule`: Quote ID, Billing Date, Amount, Line Description, State (Scheduled, Invoiced, Paid).
-- **Billing Logic**:
-  - Separates one-time Hardware/Service charges (invoiced immediately upon confirmation) from recurring Subscription lines.
+### Milestone B3: Hybrid Billing Schedule Engine
+- **Model**: `vantage.billing.schedule`
+  - Separates one-time hardware/service charges from recurring subscription lines.
+  - Autonomously generates monthly recurring billing schedules.
+  - Provides `action_mark_invoiced()` milestone triggers.
+
+### Milestone B4: Live Smart Upsell Intelligence
+- **Model**: `vantage.upsell.rule`
+  - Pairing rules with minimum margin thresholds.
+  - Real-time `available_upsell_ids` computation based on cart contents.
+  - `action_apply_upsell()` 1-click cart insertion with live profit delta contribution.
   - Generates automated recurring billing schedule entries.
   - Mid-cycle proration engine: adjusts billing when subscription seats/quantities change mid-month.
 
