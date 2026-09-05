@@ -274,3 +274,14 @@ DETAILS:
 STATUS: Verified & Live
 ------------------------------------------------------------------------------
 
+[2026-09-05 19:00:00] [AGENT: Antigravity] [PERSONA: Akthar]
+ACTION: Guaranteed Customer-Side Bargain Visibility & Added Portal Sidebar Action
+DETAILS:
+1. Repositioned Deal Negotiation Portal Card directly before '#informations' in custom_addons/vantage_governance/views/portal_templates.xml so it is immediately visible at the top of quotation content without scrolling.
+2. Kept Deal Negotiation Card perpetually visible in draft/sent states even if circuit breaker is engaged, rendering an explicit lock notice instead of hiding the interface.
+3. Added a prominent gold '🤝 Bargain / Counter-Offer' button in the customer portal sidebar (#sale_order_sidebar_button) linking smoothly to #deal_negotiation_portal.
+4. Overrode _prepare_quotations_domain in VantageCustomerPortal (custom_addons/vantage_governance/controllers/portal.py) so draft quotations appear alongside sent quotations in /my/quotes for portal customers.
+5. Reset quotation S00041 negotiation rounds to 0 and configured max rounds to 5 for comprehensive live testing.
+STATUS: Verified & Live
+------------------------------------------------------------------------------
+
