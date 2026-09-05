@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# VantageOps Keyword & Command Helper
+if command -v glow &>/dev/null; then
+    glow KEYS.md
+elif command -v bat &>/dev/null; then
+    bat --style=plain KEYS.md
+else
+    cat KEYS.md
+fi

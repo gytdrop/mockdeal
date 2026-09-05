@@ -29,3 +29,8 @@ VERIFICATION: Pushed to mockdeal main.
 COMMIT: Pending next commit
 SUMMARY: Established two-tier repository policy (mockdeal = active development canvas, VantageOps = final delivery destination). Created antigravity.log, claude.log, and workonmyperiod.log.
 VERIFICATION: Guardrails active across all agent guidelines.
+
+[2026-09-05 12:04:00] [AGENT: Antigravity] [PERSONA: System Setup / Governance]
+COMMIT: Pending commit (KEYS.md)
+SUMMARY: Created KEYS.md with all technical keywords (persona triggers, logging commands, repository safety triggers, CLI shortcuts). Added executable helper scripts ./keys and ./--keys for instant terminal lookup.
+VERIFICATION: Tested ./keys and ./--keys successfully.
