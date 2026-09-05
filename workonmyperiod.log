@@ -173,3 +173,10 @@ ACTION: Pulled mockdeal, Merged Demo Data, Completed Kanban Deal Health & Full E
 DETAILS: Pulled latest commits from mockdeal origin/master (Ashrith's demo_data.xml), cleanly merged with main, added deal_health badge to quotation Kanban cards in governance_views.xml, synchronized SCHEMA.md, CONTRACT.md, and EXECUTION_PLAN.md. Successfully upgraded modules and ran automated 8-step test flow verifying discount risk block, two-tier approval routing (Manager + Finance), hybrid billing schedule generation, and multi-warehouse fulfillment split. Pushed all branches (main, master) to mockdeal.
 STATUS: Verified & 100% Complete
 ------------------------------------------------------------------------------
+
+[2026-09-05 15:53:00] [AGENT: Antigravity] [PERSONA: Akthar]
+ACTION: Resolved wkhtmltopdf Qt 5.15 Incompatibility & Fixed Odoo PDF Report Generation
+DETAILS: Fixed core dump / abort error (Signal 6 ABRT) caused by incompatible Arch Linux Qt libraries (5.15.18 vs 5.15.19) in distro wkhtmltopdf. Installed upstream patched-Qt wkhtmltopdf 0.12.6.1 in ~/.local/share/wkhtmltox with localized dependencies (libjpeg62-turbo, libssl1.1, libcrypto1.1) and configured wrapper scripts in ~/.local/bin. Patched safe form field update handling in odoo/tools/pdf/__init__.py for modern pypdf. Verified native Odoo PDF generation for quotations (517KB PDF) and restarted Odoo daemon with state 'ok'.
+STATUS: Verified & Live
+------------------------------------------------------------------------------
+
