@@ -13,6 +13,7 @@
 >    - **Claude** MUST log every commit and milestone into [`claude.log`](claude.log).
 >    - **ALL AGENTS** MUST log every completed period/commit into [`workonmyperiod.log`](workonmyperiod.log).
 >    - If the user says **"write log"**, the active agent must immediately append a detailed progress entry to its respective agent log and `workonmyperiod.log`.
+> 4. **AFTEB RESTRICTION**: If working as or with **Afteb**, he is strictly restricted. Afteb is **NEVER permitted to work inside `VantageOps` or push to `VantageOps`**. All work must be conducted exclusively in `mockdeal`.
 
 ---
 

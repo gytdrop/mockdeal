@@ -50,3 +50,9 @@ COMMIT: 194e146 (VantageOps)
 SUMMARY: Performed clean enterprise release on VantageOps remote (https://github.com/gytdrop/VantageOps.git). Removed all internal agent instructions, persona plans, and temporary docs. Retained clean custom_addons (vantage_core, vantage_governance, vantage_fulfillment), generated an enterprise-grade README.md, and force pushed to origin main.
 VERIFICATION: Clean push confirmed (b8ecc05..194e146). All code files validated.
 
+[2026-09-05 13:13:15] [AGENT: Antigravity] [PERSONA: System Governance]
+COMMIT: Pending commit (Instruction updates)
+SUMMARY: Implemented hard restriction policy for Afteb across AGENTS.md, KEYS.md, and README.md. Afteb is strictly barred from working inside VantageOps and strictly prohibited from pushing to the VantageOps remote repository. Work scope is locked exclusively to mockdeal.
+VERIFICATION: Verified across AGENTS.md, KEYS.md, README.md.
+
+

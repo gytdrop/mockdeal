@@ -43,3 +43,9 @@ ACTION: Promoted clean modules to VantageOps and force pushed (Commit: 194e146)
 DETAILS: Stripped internal hackathon planning/instruction files (AGENTS.md, CONTRACT.md, EXECUTION_PLAN.md, VISION.md, internal docs, logs) from VantageOps. Populated clean custom_addons (vantage_core, vantage_governance, vantage_fulfillment) and wrote professional enterprise README.md. Force pushed cleanly to origin main on https://github.com/gytdrop/VantageOps.git.
 STATUS: Verified & Pushed.
 
+[2026-09-05 13:13:15] [AGENT: Antigravity] [PERSONA: System Governance]
+ACTION: Updated Instructions with Afteb Restriction
+DETAILS: Updated AGENTS.md, KEYS.md, and README.md with strict guardrails for Afteb. Afteb is strictly prohibited from working inside VantageOps and strictly prohibited from pushing to the VantageOps repository. Confined all Afteb activities exclusively to mockdeal.
+STATUS: Verified.
+
+
