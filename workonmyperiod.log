@@ -161,3 +161,10 @@ ACTION: Commited and pushed demo_data.xml to mockdeal
 DETAILS: Generated demo_data.xml for Sale Order 34, updated __manifest__.py, and pushed to remote origin.
 STATUS: Verified
 ------------------------------------------------------------------------------
+
+[2026-09-05 15:42:00] [AGENT: Antigravity] [PERSONA: Akthar]
+ACTION: Resolved TypeError in portal_order_counter_offer controller
+DETAILS: Removed unexpected keyword argument 'access_token' from order_sudo.get_portal_url() in custom_addons/vantage_governance/controllers/portal.py. In Odoo 17, PortalMixin.get_portal_url() generates access_token automatically via _portal_ensure_token(). Restarted Odoo server daemon and verified HTTP 303 redirect and counter-offer submission.
+STATUS: Verified & Live
+------------------------------------------------------------------------------
+
