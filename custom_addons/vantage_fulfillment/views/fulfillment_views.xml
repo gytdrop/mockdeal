@@ -81,6 +81,11 @@
             <xpath expr="//field[@name='sale_order_option_ids']/tree/field[@name='price_unit']" position="after">
                 <field name="margin_delta" string="Margin ($)" optional="show" widget="monetary"/>
             </xpath>
+
+            <!-- Optional Products View Extension -->
+            <xpath expr="//field[@name='sale_order_option_ids']/tree/field[@name='price_unit']" position="after">
+                <field name="margin_delta" string="Margin ($)" optional="show" widget="monetary"/>
+            </xpath>
         </field>
 
     </record>
