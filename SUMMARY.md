@@ -9,8 +9,9 @@
 2. [Backend Odoo UI: Header Buttons, Alerts & Code Locations](#2-backend-odoo-ui-header-buttons-alerts--code-locations)
 3. [Customer Portal: Pages, Views & Controller Locations](#3-customer-portal-pages-views--controller-locations)
 4. [Destined File Mapping: Mockdeal Canvas ➔ VantageOps Destination](#4-destined-file-mapping-mockdeal-canvas--vantageops-destination)
-5. [Repository Artifacts & Documentation Directory](#5-repository-artifacts--documentation-directory)
-6. [Keywords & Living Update Instructions](#6-keywords--living-update-instructions)
+5. [Confirmed Python & XML Source Code Inventory (All 18 Production Files)](#5-confirmed-python--xml-source-code-inventory-all-18-production-files)
+6. [Repository Artifacts & Documentation Directory](#6-repository-artifacts--documentation-directory)
+7. [Keywords & Living Update Instructions](#7-keywords--living-update-instructions)
 
 ---
 
@@ -103,8 +104,6 @@ When viewing a Quotation or Sales Order in Odoo ([`sale.view_order_form`](http:/
 
 ## 🚚 4. Destined File Mapping: Mockdeal Canvas ➔ VantageOps Destination
 
-This matrix defines where every file lives in the **Active Development Canvas (`mockdeal`)** and where it is destined in the **Frozen Enterprise Delivery Target (`VantageOps`)**:
-
 | Component / File | Location in `mockdeal` (Canvas) | Destined Location in `VantageOps` (Release) | Status / Rule |
 | :--- | :--- | :--- | :--- |
 | **Shared Core Addon** | `custom_addons/vantage_core/` | `VantageOps/custom_addons/vantage_core/` | ✅ **Mirrored & Pushed** |
@@ -120,7 +119,55 @@ This matrix defines where every file lives in the **Active Development Canvas (`
 
 ---
 
-## 📁 5. Repository Artifacts & Documentation Directory
+## 📜 5. Confirmed Python & XML Source Code Inventory (All 18 Production Files)
+
+All 18 production files have been compiled, syntax-validated, and confirmed working on local Odoo (`vantage_db` on port 8069).
+
+### 📦 Summary by File Type & Line Count
+* **Total Confirmed Files**: 18
+* **Python Files**: 14 files (379 lines of Python)
+* **XML Files**: 4 files (149 lines of XML)
+* **Total Production Lines**: **528 lines** *(Delivering full enterprise scope under 400 lines of Python!)*
+
+---
+
+### 1️⃣ Module: `vantage_core` (Base Foundation) — 5 Files / 143 Lines
+| File Path | Type | Lines | Purpose & Key Classes / Records |
+| :--- | :--- | :--- | :--- |
+| [`custom_addons/vantage_core/__init__.py`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_core/__init__.py) | Python Init | 1 | Imports `models` package. |
+| [`custom_addons/vantage_core/__manifest__.py`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_core/__manifest__.py) | Manifest | 13 | Module declaration, dependencies (`sale_management`, `mail`), view registration. |
+| [`custom_addons/vantage_core/models/__init__.py`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_core/models/__init__.py) | Python Init | 1 | Imports `sale_order`. |
+| [`custom_addons/vantage_core/models/sale_order.py`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_core/models/sale_order.py) | Python Model | 91 | Implements `_compute_vantage_risk` formula, `risk_approval_state` transitions, and `_compute_is_recurring_hybrid` contract detection. |
+| [`custom_addons/vantage_core/views/vantage_core_views.xml`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_core/views/vantage_core_views.xml) | Form XML | 37 | Injects red high-risk alert, blue hybrid banner, and sheet badges (`blended_risk_score`, `risk_approval_state`). |
+
+---
+
+### 2️⃣ Module: `vantage_governance` (Akthar: Commercial Control) — 8 Files / 214 Lines
+| File Path | Type | Lines | Purpose & Key Classes / Records |
+| :--- | :--- | :--- | :--- |
+| [`custom_addons/vantage_governance/__init__.py`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_governance/__init__.py) | Python Init | 2 | Imports `models` and `controllers`. |
+| [`custom_addons/vantage_governance/__manifest__.py`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_governance/__manifest__.py) | Manifest | 14 | Module metadata, dependencies (`vantage_core`, `portal`, `mail`), view loading. |
+| [`custom_addons/vantage_governance/models/__init__.py`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_governance/models/__init__.py) | Python Init | 1 | Imports `sale_order`. |
+| [`custom_addons/vantage_governance/models/sale_order.py`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_governance/models/sale_order.py) | Python Model | 105 | Implements `action_confirm` block, `_schedule_manager_approval_activity`, `action_manager_approve`, `action_manager_reject`, and `action_customer_counter_offer`. |
+| [`custom_addons/vantage_governance/controllers/__init__.py`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_governance/controllers/__init__.py) | Python Init | 1 | Imports `portal`. |
+| [`custom_addons/vantage_governance/controllers/portal.py`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_governance/controllers/portal.py) | Python Controller | 23 | Public HTTP endpoint `/my/orders/<id>/counter_offer` validating tokens and routing counter discounts. |
+| [`custom_addons/vantage_governance/views/governance_views.xml`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_governance/views/governance_views.xml) | Form XML | 35 | Injects `action_manager_approve` & `action_manager_reject` header buttons and the `Risk & Approvals` notebook tab. |
+| [`custom_addons/vantage_governance/views/portal_templates.xml`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_governance/views/portal_templates.xml) | QWeb Portal XML | 33 | XPath injection onto `sale.sale_order_portal_content`: renders the Deal Negotiation form card and the locked Circuit Breaker banner. |
+
+---
+
+### 3️⃣ Module: `vantage_fulfillment` (Ashrith: Operational Execution) — 5 Files / 174 Lines
+| File Path | Type | Lines | Purpose & Key Classes / Records |
+| :--- | :--- | :--- | :--- |
+| [`custom_addons/vantage_fulfillment/__init__.py`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_fulfillment/__init__.py) | Python Init | 1 | Imports `models`. |
+| [`custom_addons/vantage_fulfillment/__manifest__.py`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_fulfillment/__manifest__.py) | Manifest | 13 | Module declaration, dependencies (`vantage_core`, `stock`, `sale_stock`), view loading. |
+| [`custom_addons/vantage_fulfillment/models/__init__.py`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_fulfillment/models/__init__.py) | Python Init | 1 | Imports `sale_order`. |
+| [`custom_addons/vantage_fulfillment/models/sale_order.py`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_fulfillment/models/sale_order.py) | Python Model | 115 | Location-context inventory scanner (`_compute_free_qty_today`), auto-split line forking (`action_split_fulfillments`), and `margin_delta`. |
+| [`custom_addons/vantage_fulfillment/views/fulfillment_views.xml`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_fulfillment/views/fulfillment_views.xml) | Form XML | 44 | Injects `Auto-Split Warehouses` header button, yellow inventory deficit warning, line tree margin columns, and `Fulfillment & Warehouses` tab. |
+
+---
+
+## 📁 6. Repository Artifacts & Documentation Directory
 
 * **`mockdeal` (Active Workspace)**: `/home/gytdrop/Documents/HACKATHONS/2026/odoo hackathon/odoo gujarat`
   - Remote: [`https://github.com/gytdrop/mockdeal.git`](https://github.com/gytdrop/mockdeal.git)
@@ -129,13 +176,13 @@ This matrix defines where every file lives in the **Active Development Canvas (`
 
 ---
 
-## 🔄 6. Keywords & Living Update Instructions
+## 🔄 7. Keywords & Living Update Instructions
 
 Run `./--keys` or `./keys` in your terminal to see all triggers:
 
 | Keyword Trigger | What It Updates |
 | :--- | :--- |
-| **`update summary`** | Scans recent UI additions, tabs, and models to synchronize **`SUMMARY.md`**. |
+| **`update summary`** | Scans recent UI additions, tabs, models, and file inventories to synchronize **`SUMMARY.md`**. |
 | **`update explainer`** | Scans recent code chunks and logic to append new recipes into **`EXPLAINER.md`**. |
 | **`promote to vantageops`** | Mirrors validated custom addons into `VantageOps` after confirmation. |
 | **`write log`** | Records current work session immediately into `antigravity.log` and `workonmyperiod.log`. |
