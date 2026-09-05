@@ -35,6 +35,9 @@ Do not rebuild native Odoo functionality. We are exploiting core Odoo patterns t
 *   **Task 4 (Deal Health & Rep Anomaly Tracker):** Real-time `deal_health` badges (`healthy`, `stalled`, `margin_bleed`), `days_inactive` tracking, and `action_nudge_rep` task dispatcher. (✅ Done)
 *   **Task 5 (Frontend/QWeb):** Inherit `sale_order_portal_content` using QWeb XML to add counter-offer input and circuit-breaker lock card. (✅ Done)
 *   **Task 6 (Logic):** Write `action_customer_counter_offer()` to intercept portal input, recalculate risk, log to chatter, and lock negotiation at 3 rounds. (✅ Done)
+*   **Task 7 (Standalone App & Menus):** Create top-level VantageOps Root App in 9-grid menu with dedicated category header tabs (Dashboard, Quotations, Approvals, Fulfillment, Subscriptions, Invoices, Deal Health, Reports, Products). (✅ Done)
+*   **Task 8 (Executive Cockpit):** Build full-width Bootstrap 5 Executive Sales Dashboard (`vantage.sales.dashboard`, `dashboard_views.xml`) with KPI cards, pipeline metrics, live activity feed, and quick actions. (✅ Done)
+*   **Task 9 (Customer Access):** Enable B2C uninvited customer signup on `/web/login` with prominent Sign Up CTA for frictionless portal onboarding. (✅ Done)
 
 ### 👤 Member 2: Operational Execution (`vantage_fulfillment`) - Ashrith [STATUS: 100% COMPLETE]
 *   **Focus Areas:** "Fulfillment & Warehouses", "Hybrid Billing Schedule", "Smart Upsells", and Backorder Splits.

@@ -466,10 +466,55 @@ Use this section whenever a judge asks: *"What exact lines did you write?", "How
 
 ---
 
-## ⚡ 4. The 11 Native Odoo "Gigs" Summary Table
+### 🍳 Recipe 12: Standalone VantageOps Executive Cockpit & 9-Grid Application Suite
+* **Judge Question**: *"How do executives and sales leaders view total pipeline risk and operational health across all deals without digging through individual orders?"*
+* **The Code You Wrote** ([`vantage_governance/models/vantage_dashboard.py`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_governance/models/vantage_dashboard.py), [`dashboard_views.xml`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_governance/views/dashboard_views.xml), [`vantage_core/views/menus.xml`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_core/views/menus.xml)):
+  ```python
+  class VantageSalesDashboard(models.Model):
+      _name = 'vantage.sales.dashboard'
+      _description = 'VantageOps Executive Sales Dashboard'
+
+      total_pipeline_val = fields.Monetary(string='Total Pipeline Value', compute='_compute_metrics')
+      high_risk_deal_count = fields.Integer(string='High-Risk Deals', compute='_compute_metrics')
+      pending_manager_count = fields.Integer(string='Pending Manager Approval', compute='_compute_metrics')
+      pending_finance_count = fields.Integer(string='Pending Finance Approval', compute='_compute_metrics')
+      recent_activity_html = fields.Html(string='Recent Activity', compute='_compute_metrics')
+  ```
+* **How It Works**:
+  1. We registered `menu_vantage_root` as an independent top-level application in Odoo's 9-grid app launcher.
+  2. The Executive Dashboard utilizes Bootstrap 5 with `.p-4 .w-100` and `o_form_nosheet` to occupy the full browser width, overriding the restrictive default form width.
+  3. Form-level `.o_control_panel { display: none !important; }` CSS cleanly suppresses duplicate breadcrumbs and pagination, delivering a flush executive header.
+  4. Dynamic computed fields continuously aggregate deal volume, gross revenue, stalled contracts, pending approval counts, and recurring MRR into accent-bordered cards.
+  5. The live activity feed parses `mail.message` records on `sale.order` and generates real-time status pill badges with zero polling lag.
+* **What to Tell the Judge**:
+  > *"Rather than forcing sales directors to dig through tabular lists or rely on static third-party BI tools, VantageOps functions as a native command center right from Odoo's main app switcher. It calculates live risk aggregates, pending approval counts, and backorder split statuses across the entire enterprise, with 1-click drill-downs into pending queues."*
+
+---
+
+### 🍳 Recipe 13: Frictionless Customer Self-Registration & Portal Access
+* **Judge Question**: *"How do customers onboard to submit counter-offers and review quotes without manual user provisioning by an admin?"*
+* **The Code You Wrote** ([`vantage_governance/demo/demo_data.xml`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_governance/demo/demo_data.xml) & `website.auth_signup_uninvited='b2c'` configuration):
+  ```xml
+  <!-- Enable public B2C signup and render direct Sign Up action -->
+  <record id="website.default_website" model="website">
+      <field name="auth_signup_uninvited">b2c</field>
+  </record>
+  ```
+* **How It Works**:
+  1. By configuring `auth_signup_uninvited` to `'b2c'`, Odoo automatically unlocks public registration on `/web/login` and `/web/signup`.
+  2. Buyers can create their own account with a single click, instantly gaining portal user access to their commercial quotations (`/my/quotes`).
+  3. Every quote includes an automated secure HMAC `access_token` so customers can view and negotiate immediately without authentication friction, or log in to track all historical transactions.
+* **What to Tell the Judge**:
+  > *"We eliminated customer onboarding friction by activating native B2C uninvited signup and embedding a direct Sign Up CTA on the login page. Customers can effortlessly self-register or use tokenized direct links to access our reactive QWeb negotiation canvas."*
+
+---
+
+## ⚡ 4. The 13 Native Odoo "Gigs" Summary Table
 
 | Gig Name | Core Hook Used | Why It Beats Custom Code | Python Lines |
 | :--- | :--- | :--- | :--- |
+| **Executive Sales Cockpit** | `vantage.sales.dashboard` + BS5 | Full-width real-time KPI cockpit with zero external BI dependencies. | ~110 lines |
+| **Standalone App & 9-Grid Suite**| `menu_vantage_root` + `menus.xml` | Positions VantageOps as a primary ERP application alongside Sales & Inventory. | ~40 lines |
 | **Chatter Task Escalation** | `mail.activity` | Drops tasks into navbar notifications with zero custom queues. | ~25 lines |
 | **Confirmation Interceptor** | `super().action_confirm()` | Halts high-risk deals without breaking standard delivery/invoice flows. | ~15 lines |
 | **Two-Tier Approval Escalation**| `risk_approval_state` + `mail.activity` | Cascades approvals from Manager to Finance Director autonomously. | ~35 lines |

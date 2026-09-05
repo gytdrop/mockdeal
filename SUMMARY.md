@@ -5,24 +5,66 @@
 ---
 
 ## 📑 Table of Contents
-1. [Backend Odoo UI: Tabs, Fields & File Locations](#1-backend-odoo-ui-tabs-fields--file-locations)
-2. [Backend Odoo UI: Header Buttons, Alerts & Code Locations](#2-backend-odoo-ui-header-buttons-alerts--code-locations)
-3. [Customer Portal: Pages, Views & Controller Locations](#3-customer-portal-pages-views--controller-locations)
-4. [Destined File Mapping: Mockdeal Canvas ➔ VantageOps Destination](#4-destined-file-mapping-mockdeal-canvas--vantageops-destination)
-5. [Confirmed Python & XML Source Code Inventory (All 18 Production Files)](#5-confirmed-python--xml-source-code-inventory-all-18-production-files)
-6. [Repository Artifacts & Documentation Directory](#6-repository-artifacts--documentation-directory)
-7. [Keywords & Living Update Instructions](#7-keywords--living-update-instructions)
+1. [VantageOps Standalone Root App & Header Navigation](#1-vantageops-standalone-root-app--header-navigation)
+2. [Executive Sales Cockpit (Dashboard)](#2-executive-sales-cockpit-dashboard)
+3. [Backend Odoo UI: Quotation Tabs, Fields & File Locations](#3-backend-odoo-ui-quotation-tabs-fields--file-locations)
+4. [Backend Odoo UI: Header Buttons, Alerts & Code Locations](#4-backend-odoo-ui-header-buttons-alerts--code-locations)
+5. [Customer Portal & Public Access: Pages, Views & Controller Locations](#5-customer-portal--public-access-pages-views--controller-locations)
+6. [Destined File Mapping: Mockdeal Canvas ➔ VantageOps Destination](#6-destined-file-mapping-mockdeal-canvas--vantageops-destination)
+7. [Confirmed Python, XML & Security Source Code Inventory (All 26 Production Files)](#7-confirmed-python-xml--security-source-code-inventory-all-26-production-files)
+8. [Repository Artifacts & Documentation Directory](#8-repository-artifacts--documentation-directory)
+9. [Keywords & Living Update Instructions](#9-keywords--living-update-instructions)
 
 ---
 
-## 🖥️ 1. Backend Odoo UI: Tabs, Fields & File Locations
+## 🚀 1. VantageOps Standalone Root App & Header Navigation
 
-When viewing a Quotation or Sales Order in Odoo ([`sale.view_order_form`](http://localhost:8069/web#id=26&model=sale.order&view_type=form)), the central `<notebook>` contains three primary tabs:
+VantageOps is deployed as an independent top-level application in Odoo's 9-grid app switcher (`menus.xml`), giving leadership and sales operations an uncluttered panoramic workspace with 9 integrated header tabs:
 
 ```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│ [Order Lines]    [Risk & Approvals (Akthar)]    [Fulfillment (Ashrith)]     │
-└─────────────────────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ 🌐 VantageOps  │ Dashboard │ Quotations │ Approvals │ Fulfillment │ Subscriptions │ Invoices ... │
+└──────────────────────────────────────────────────────────────────────────────────────────────────┘
+```
+
+* **Menu Definition File**: [`custom_addons/vantage_core/views/menus.xml`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_core/views/menus.xml)
+* **Root Application**: `menu_vantage_root` (Icon: custom brand icon in 9-grid)
+* **Navbar Categories**:
+  1. `Dashboard`: Opens the Executive Sales Cockpit (`action_vantage_sales_dashboard`).
+  2. `Quotations`: Direct list/kanban of all active commercial quotes (`sale.action_quotations_with_onboarding`).
+  3. `Approvals`: Filtered action displaying deals requiring Manager or Finance sign-off.
+  4. `Fulfillment`: Logistics routing views and delivery orders (`stock.action_picking_tree_all`).
+  5. `Subscriptions`: Hybrid contracts and milestone billing installment schedules.
+  6. `Invoices`: Direct access to customer account move records.
+  7. `Deal Health`: Pipeline inspection filtered by stalled deals and margin bleed.
+  8. `Reports`: Sales analysis and performance pivot reports.
+  9. `Products`: Master catalog with direct link to Smart Upsell Rules (`menu_vantage_upsell_rules`).
+
+---
+
+## 📊 2. Executive Sales Cockpit (Dashboard)
+
+A full-width, Bootstrap 5-powered command dashboard ([`vantage.sales.dashboard`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_governance/models/vantage_dashboard.py)) designed for Sales VPs, Commercial Directors, and Operations Leads:
+
+* **View Source File**: [`custom_addons/vantage_governance/views/dashboard_views.xml`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_governance/views/dashboard_views.xml)
+* **Model Source File**: [`custom_addons/vantage_governance/models/vantage_dashboard.py`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_governance/models/vantage_dashboard.py)
+* **Layout Highlights**:
+  - **Full-Width Viewport**: Employs `.p-4 .w-100` and disables fixed-width `<sheet>` centering. Native `.o_control_panel` breadcrumbs are cleanly suppressed for a sleek header.
+  - **Metric Cards**: Thick 5px accent borders (`border-primary`, `border-success`, `border-warning`, `border-danger`, `border-info`).
+  - **Live Counters**: Pipeline Gross Value, Average Deal Size, Critical Margin Bleed, Pending Manager/Finance Approvals, and MRR Pipeline.
+  - **Live Chatter Activity Feed**: Inlines real-time message stream with colored status pill badges directly from `mail.message`.
+  - **One-Click Quick Action Bar**: Instant triggers for "New Quotation", "Review Approvals", "Generate Billing", and "Upsell Catalog".
+
+---
+
+## 🖥️ 3. Backend Odoo UI: Quotation Tabs, Fields & File Locations
+
+When viewing a Quotation or Sales Order in Odoo ([`sale.view_order_form`](http://localhost:8069/web#id=26&model=sale.order&view_type=form)), the central `<notebook>` contains five specialized tabs:
+
+```
+┌──────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ [Order Lines] [Risk & Approvals] [Fulfillment] [Hybrid Billing Schedule] [Smart Upsells]         │
+└──────────────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ### 1️⃣ Tab: `Order Lines` (`name="order_lines"`)
@@ -118,26 +160,28 @@ When viewing a Quotation or Sales Order in Odoo ([`sale.view_order_form`](http:/
 
 ---
 
-## 🌐 3. Customer Portal: Pages, Views & Controller Locations
+## 🌐 5. Customer Portal & Public Access: Pages, Views & Controller Locations
 
 | URL / Route | Component | XML / Python File Location | Purpose & Experience |
 | :--- | :--- | :--- | :--- |
-| **`/my` & `/my/home`** | Portal Dashboard | Native Odoo `addons/portal/` | Overview of all customer transactions. |
-| **`/my/quotes`** | Quotation List | Native Odoo `addons/sale/` | Summary of quotations awaiting review. |
-| **`/my/orders/<id>`** | Order Portal Detail | Native `addons/sale/views/sale_portal_templates.xml` | Full customer quotation view. |
-| *(Inside Portal)* | **Deal Negotiation Card** | [`custom_addons/vantage_governance/views/portal_templates.xml:L6-26`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_governance/views/portal_templates.xml#L6-L26) | Injected card above line items allowing customer to submit counter-discount % and concession notes. |
+| **`/web/login`** | Sign In & Onboarding | Native Odoo + `website.auth_signup_uninvited='b2c'` | Login portal equipped with direct **Sign Up** button for instant customer registration. |
+| **`/web/signup`** | Customer Registration | Native Odoo `auth_signup` | Frictionless self-service customer portal onboarding. |
+| **`/my` & `/my/home`** | Portal Dashboard | Native Odoo `addons/portal/` | Panoramic overview of customer quotes, orders, and invoices. |
+| **`/my/quotes`** | Quotation List | Native Odoo `addons/sale/` | Summary of quotations awaiting customer review. |
+| **`/my/orders/<id>`** | Order Portal Detail | Native `addons/sale/views/sale_portal_templates.xml` | Full interactive customer quotation canvas. |
+| *(Inside Portal)* | **Deal Negotiation Card** | [`custom_addons/vantage_governance/views/portal_templates.xml:L6-26`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_governance/views/portal_templates.xml#L6-L26) | Injected card allowing customer to submit counter-discount % and concession remarks. |
 | *(Inside Portal)* | **Circuit Breaker Alert** | [`custom_addons/vantage_governance/views/portal_templates.xml:L28-30`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_governance/views/portal_templates.xml#L28-L30) | Banner informing customer that maximum rounds (3) have been reached and deal terms are locked. |
 | **`POST /my/orders/<id>/counter_offer`** | Counter-Offer API | [`custom_addons/vantage_governance/controllers/portal.py:L7-24`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_governance/controllers/portal.py#L7-L24) | Validates token, calls `action_customer_counter_offer()`, recalculates risk, and posts Chatter card. |
 
 ---
 
-## 🚚 4. Destined File Mapping: Mockdeal Canvas ➔ VantageOps Destination
+## 🚚 6. Destined File Mapping: Mockdeal Canvas ➔ VantageOps Destination
 
 | Component / File | Location in `mockdeal` (Canvas) | Destined Location in `VantageOps` (Release) | Status / Rule |
 | :--- | :--- | :--- | :--- |
-| **Shared Core Addon** | `custom_addons/vantage_core/` | `VantageOps/custom_addons/vantage_core/` | ✅ **Mirrored & Pushed** |
-| **Akthar Governance Addon** | `custom_addons/vantage_governance/` | `VantageOps/custom_addons/vantage_governance/` | ✅ **Mirrored & Pushed** |
-| **Ashrith Fulfillment Addon** | `custom_addons/vantage_fulfillment/` | `VantageOps/custom_addons/vantage_fulfillment/` | ✅ **Mirrored & Pushed** |
+| **Shared Core Addon** | `custom_addons/vantage_core/` | `VantageOps/custom_addons/vantage_core/` | ✅ **Mirrored & Clean** |
+| **Akthar Governance Addon** | `custom_addons/vantage_governance/` | `VantageOps/custom_addons/vantage_governance/` | ✅ **Mirrored & Clean** |
+| **Ashrith Fulfillment Addon** | `custom_addons/vantage_fulfillment/` | `VantageOps/custom_addons/vantage_fulfillment/` | ✅ **Mirrored & Clean** |
 | **Enterprise README** | `README.md` (Canvas version) | `VantageOps/README.md` (Enterprise clean version) | ✅ **Clean Enterprise Live** |
 | **Git Exclusion Rules** | `.gitignore` | `VantageOps/.gitignore` | ✅ **Clean Enterprise Live** |
 | **Judge Recipe Book** | [`EXPLAINER.md`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/EXPLAINER.md) | *Canvas only (or optional promotion)* | 🏠 Kept in `mockdeal` |
@@ -148,41 +192,46 @@ When viewing a Quotation or Sales Order in Odoo ([`sale.view_order_form`](http:/
 
 ---
 
-## 📜 5. Confirmed Python & XML Source Code Inventory (All 21 Production Files)
+## 📜 7. Confirmed Python, XML & Security Source Code Inventory (All 26 Production Files)
 
-All 21 production files have been compiled, syntax-validated, and confirmed working on local Odoo (`vantage_db` on port 8069).
+All 26 production files have been compiled, syntax-validated, and confirmed working on local Odoo (`vantage_db` on port 8069).
 
 ### 📦 Summary by File Type & Line Count
-* **Total Confirmed Files**: 21
-* **Python Files**: 16 files
-* **XML Files**: 4 files
-* **Security CSV**: 1 file
-* **Total Custom Addon Lines**: ~620 lines *(Delivering full enterprise DealFlow360 scope!)*
+* **Total Confirmed Files**: 26
+* **Python Files**: 17 files
+* **XML Files**: 7 files
+* **Security CSV**: 2 files
+* **Total Custom Addon Lines**: ~1,530 lines *(Delivering full enterprise DealFlow360 scope!)*
 
 ---
 
-### 1️⃣ Module: `vantage_core` (Base Foundation) — 5 Files
+### 1️⃣ Module: `vantage_core` (Base Foundation) — 6 Files
 | File Path | Type | Lines | Purpose & Key Classes / Records |
 | :--- | :--- | :--- | :--- |
 | [`custom_addons/vantage_core/__init__.py`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_core/__init__.py) | Python Init | 1 | Imports `models` package. |
-| [`custom_addons/vantage_core/__manifest__.py`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_core/__manifest__.py) | Manifest | 13 | Module declaration, dependencies (`sale_management`, `mail`), view registration. |
+| [`custom_addons/vantage_core/__manifest__.py`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_core/__manifest__.py) | Manifest | 17 | Module declaration, dependencies (`sale_management`, `mail`), view & menu registration. |
 | [`custom_addons/vantage_core/models/__init__.py`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_core/models/__init__.py) | Python Init | 1 | Imports `sale_order`. |
 | [`custom_addons/vantage_core/models/sale_order.py`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_core/models/sale_order.py) | Python Model | 92 | Implements base `_compute_vantage_risk` formula, `risk_approval_state` transitions, and `_compute_is_recurring_hybrid` contract detection. |
+| [`custom_addons/vantage_core/views/menus.xml`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_core/views/menus.xml) | Menu XML | 68 | Defines top-level VantageOps Root Application in 9-grid menu with navbar tabs (Dashboard, Quotations, Approvals, Fulfillment, Subscriptions, Invoices, Deal Health, Reports, Products). |
 | [`custom_addons/vantage_core/views/vantage_core_views.xml`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_core/views/vantage_core_views.xml) | Form XML | 37 | Injects red high-risk alert, blue hybrid banner, and sheet badges (`blended_risk_score`, `risk_approval_state`). |
 
 ---
 
-### 2️⃣ Module: `vantage_governance` (Akthar: Commercial Control) — 8 Files
+### 2️⃣ Module: `vantage_governance` (Akthar: Commercial Control) — 12 Files
 | File Path | Type | Lines | Purpose & Key Classes / Records |
 | :--- | :--- | :--- | :--- |
 | [`custom_addons/vantage_governance/__init__.py`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_governance/__init__.py) | Python Init | 2 | Imports `models` and `controllers`. |
-| [`custom_addons/vantage_governance/__manifest__.py`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_governance/__manifest__.py) | Manifest | 14 | Module metadata, dependencies (`vantage_core`, `portal`, `mail`), view loading. |
-| [`custom_addons/vantage_governance/models/__init__.py`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_governance/models/__init__.py) | Python Init | 1 | Imports `sale_order`. |
+| [`custom_addons/vantage_governance/__manifest__.py`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_governance/__manifest__.py) | Manifest | 22 | Module metadata, dependencies (`vantage_core`, `portal`, `mail`), security, data & view loading. |
+| [`custom_addons/vantage_governance/models/__init__.py`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_governance/models/__init__.py) | Python Init | 2 | Imports `sale_order` and `vantage_dashboard`. |
 | [`custom_addons/vantage_governance/models/sale_order.py`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_governance/models/sale_order.py) | Python Model | 249 | Customer Tiers (`res.partner.customer_tier`), Two-Tier Approval (`action_manager_approve`, `action_finance_approve`), Deal Health & Anomaly (`_compute_deal_health`), Rep Nudge (`action_nudge_rep`), and Portal counter-offers. |
+| [`custom_addons/vantage_governance/models/vantage_dashboard.py`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_governance/models/vantage_dashboard.py) | Python Model | 227 | `vantage.sales.dashboard`: Computes real-time executive KPIs (pipeline volume, healthy/stalled/bleed counts, approval queues, subscription MRR, fulfillment split alerts, and HTML live activity feed). |
 | [`custom_addons/vantage_governance/controllers/__init__.py`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_governance/controllers/__init__.py) | Python Init | 1 | Imports `portal`. |
 | [`custom_addons/vantage_governance/controllers/portal.py`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_governance/controllers/portal.py) | Python Controller | 23 | Public HTTP endpoint `/my/orders/<id>/counter_offer` validating tokens and routing counter discounts. |
 | [`custom_addons/vantage_governance/views/governance_views.xml`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_governance/views/governance_views.xml) | Form & Tree XML | 100 | Injects Manager & Finance Approve buttons, customer tier on partners, quotation tree health badges, and custom search filters. |
 | [`custom_addons/vantage_governance/views/portal_templates.xml`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_governance/views/portal_templates.xml) | QWeb Portal XML | 33 | XPath injection onto `sale.sale_order_portal_content`: renders Deal Negotiation form card and locked Circuit Breaker banner. |
+| [`custom_addons/vantage_governance/views/dashboard_views.xml`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_governance/views/dashboard_views.xml) | Form XML | 185 | Full-width Bootstrap 5 responsive executive dashboard with border-accented KPI cards, quick-action launchpad, and live chatter activity feed. |
+| [`custom_addons/vantage_governance/security/ir.model.access.csv`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_governance/security/ir.model.access.csv) | Security ACL | 2 | Access control rights granting sales users and managers full view and refresh rights on `vantage.sales.dashboard`. |
+| [`custom_addons/vantage_governance/demo/demo_data.xml`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_governance/demo/demo_data.xml) | Data XML | 15 | Default initialization record for the executive dashboard singleton. |
 
 ---
 

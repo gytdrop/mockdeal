@@ -26,5 +26,9 @@ VantageOps replaces manual bottlenecks with specialized logic nodes that evaluat
 *   **Objective:** Capture and govern buyer requirements.
 *   **Execution:** Replaces messy email threads with an interactive QWeb portal. Buyers submit exact counter-discounts line-by-line. VantageOps intercepts these, recalculates the Blended Risk Score, and enforces a hard circuit-breaker (max 3 rounds) to prevent infinite haggling.
 
+### 🌐 The Panoramic Command Node (Executive Cockpit)
+*   **Objective:** Deliver macro-visibility across the entire deal pipeline and operational health.
+*   **Execution:** Aggregates real-time pipeline volume, discount anomalies, approval bottlenecks, and fulfillment splits into a native full-width executive dashboard accessible directly from Odoo's 9-grid launcher.
+
 ## 3. The Value-Exchange 
 VantageOps shifts B2B sales from blind discounting to value-exchange negotiation. When a customer demands a price drop, the system immediately exposes the operational and financial impact—allowing sales teams to counter with alternative concessions (e.g., hybrid subscription bundles) rather than simply sacrificing the gross margin.

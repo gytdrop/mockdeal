@@ -17,6 +17,7 @@
 | `sale.order` | `is_recurring_hybrid` | `Boolean` | True if quote contains both one-time products and recurring subscription lines |
 | `sale.order.line` | `line_risk_score` | `Float` | Individual line penalty based on discount vs permissible margin |
 | `sale.order.line` | `is_subscription_item` | `Boolean` | True if product is categorized as a recurring subscription |
+| `menus.xml` | `menu_vantage_root` | Menu Item | Top-level 9-grid application launcher and navbar tabs (Dashboard, Quotations, Approvals, Fulfillment, Subscriptions, Invoices, Deal Health, Reports, Products) |
 
 ---
 
@@ -38,10 +39,13 @@
 | `sale.order` | `action_manager_reject()` | Method | Rejects deal, resolves activities, and logs feedback to Chatter |
 | `sale.order` | `action_nudge_rep()` | Method | Dispatches automated reminder activity to sales rep for stalled quotes |
 | `sale.order` | `action_customer_counter_offer()` | Method | Intercepts portal counter, increments rounds, recalculates risk, logs to chatter |
+| `vantage.sales.dashboard` | Model (`_name`) | Model | Executive Sales Cockpit model computing real-time pipeline, risk, approval, fulfillment, and revenue metrics |
+| `vantage.sales.dashboard` | `action_view_approvals()` | Method | Direct action drill-down from dashboard KPI card to pending approval quotations |
 | `portal` | `sale_order_portal_template` | QWeb XML XPath | Injects counter-offer card & circuit breaker alert into portal view |
 | `sale.view_quotation_tree` | `view_quotation_tree_inherit_vantage` | XML Tree | Injects Risk, Approval state, and Deal Health badges into quotation list |
 | `sale.view_sales_order_filter` | `view_sales_order_filter_inherit_vantage` | XML Search | Injects filters for Pending Manager, Pending Finance, Stalled Deals, Margin Bleed |
 | `sale.view_sale_order_kanban` | `view_sale_order_kanban_inherit_vantage` | XML Kanban | Injects Deal Health status badge onto quotation kanban cards |
+| `dashboard_views.xml` | `view_vantage_sales_dashboard_form` | XML Form View | Full-width Bootstrap 5 executive sales cockpit with KPI cards, live badges, and quick action launchpads |
 
 ---
 

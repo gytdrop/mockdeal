@@ -150,11 +150,11 @@ graph TD
 ---
 
 ## 5. End-to-End Verification Checklist (Problem Statement Walkthrough)
-1. [ ] **Backend Setup**: Create discount tiers, warehouses, stock levels, subscription plans.
-2. [ ] **High Discount Trigger**: Create quote with 20% discount $\rightarrow$ verifies auto-routing to Manager + Finance.
-3. [ ] **Live Upsell Acceptance**: Add suggested warranty from upsell panel $\rightarrow$ verify order total & margin update immediately.
-4. [ ] **Manager & Finance Approval**: Approve via audit trail $\rightarrow$ state updates to `approved`.
-5. [ ] **Warehouse Split Fulfillment**: Run split algorithm $\rightarrow$ verifies stock pulled across Main Warehouse & East Depot.
-6. [ ] **Hybrid Billing Schedule**: Verify hardware is invoiced immediately while subscription lines populate monthly schedule.
-7. [ ] **Customer Portal Counter**: Open customer portal link, counter with $+5\%$ discount $\rightarrow$ verifies quote re-enters approval chain.
-8. [ ] **Confirmation & Deal Health**: Confirm order, record payment, check Deal Health dashboard for deal status.
+1. [x] **Backend Setup**: Create discount tiers, warehouses, stock levels, subscription plans. (✅ Verified)
+2. [x] **High Discount Trigger**: Create quote with 20% discount $\rightarrow$ verifies auto-routing to Manager + Finance. (✅ Verified)
+3. [x] **Live Upsell Acceptance**: Add suggested warranty from upsell panel $\rightarrow$ verify order total & margin update immediately. (✅ Verified)
+4. [x] **Manager & Finance Approval**: Approve via audit trail $\rightarrow$ state updates to `approved`. (✅ Verified)
+5. [x] **Warehouse Split Fulfillment**: Run split algorithm $\rightarrow$ verifies stock pulled across Main Warehouse & East Depot. (✅ Verified)
+6. [x] **Hybrid Billing Schedule**: Verify hardware is invoiced immediately while subscription lines populate monthly schedule. (✅ Verified)
+7. [x] **Customer Portal Counter**: Open customer portal link, counter with $+5\%$ discount $\rightarrow$ verifies quote re-enters approval chain. (✅ Verified)
+8. [x] **Confirmation & Deal Health**: Confirm order, record payment, check Deal Health dashboard for deal status. (✅ Verified)

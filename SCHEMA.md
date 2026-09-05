@@ -182,6 +182,29 @@ erDiagram
 
 ---
 
+### Model: `vantage.sales.dashboard` (New Model: `_name = 'vantage.sales.dashboard'`)
+
+| Field Name | Type | Properties | Description | Module |
+| :--- | :--- | :--- | :--- | :--- |
+| `name` | `Char` | `default='VantageOps Executive Sales Cockpit'` | Title of the executive cockpit singleton. | `vantage_governance` |
+| `currency_id` | `Many2one` | `comodel_name='res.currency'` | Active company currency for monetary pipeline metrics. | `vantage_governance` |
+| `total_deal_count` | `Integer` | `compute='_compute_metrics'` | Total volume of pipeline deals and quotations. | `vantage_governance` |
+| `total_pipeline_val` | `Monetary` | `compute='_compute_metrics'` | Aggregate value across all active sales orders. | `vantage_governance` |
+| `avg_deal_val` | `Monetary` | `compute='_compute_metrics'` | Mean gross transaction value. | `vantage_governance` |
+| `high_risk_deal_count` | `Integer` | `compute='_compute_metrics'` | Count of orders with `blended_risk_score > 0`. | `vantage_governance` |
+| `healthy_deal_count` | `Integer` | `compute='_compute_metrics'` | Count of deals flagged as `healthy`. | `vantage_governance` |
+| `stalled_deal_count` | `Integer` | `compute='_compute_metrics'` | Deals with no activity for $>3$ days. | `vantage_governance` |
+| `margin_bleed_count` | `Integer` | `compute='_compute_metrics'` | Deals flagged with severe margin bleed. | `vantage_governance` |
+| `pending_manager_count`| `Integer` | `compute='_compute_metrics'` | Count of deals awaiting Tier-1 Manager review. | `vantage_governance` |
+| `pending_finance_count`| `Integer` | `compute='_compute_metrics'` | Count of deals escalated to Tier-2 Finance Director. | `vantage_governance` |
+| `hybrid_deal_count` | `Integer` | `compute='_compute_metrics'` | Contracts bundling one-time hardware and recurring SaaS. | `vantage_governance` |
+| `scheduled_recurring_val`| `Monetary`| `compute='_compute_metrics'` | Unearned pipeline MRR from scheduled billing cycles. | `vantage_governance` |
+| `invoiced_recurring_val` | `Monetary`| `compute='_compute_metrics'` | Realized recurring revenue from invoiced milestones. | `vantage_governance` |
+| `split_deficit_count` | `Integer` | `compute='_compute_metrics'` | Orders requiring multi-warehouse stock split. | `vantage_governance` |
+| `recent_activity_html` | `Html` | `compute='_compute_metrics'` | Live chatter audit feed with status badges. | `vantage_governance` |
+
+---
+
 ## 3. Security Access Control Matrix (`ir.model.access.csv`)
 
 | Model Technical ID | Model Description | Group Technical ID | Read | Write | Create | Unlink |
@@ -191,3 +214,4 @@ erDiagram
 | `model_sale_order_line` | Sales Order Line | `base.group_user` (Internal Users) | 1 | 1 | 1 | 1 |
 | `model_vantage_billing_schedule` | Hybrid Billing Schedule | `base.group_user` (Internal Users) | 1 | 1 | 1 | 1 |
 | `model_vantage_upsell_rule` | Smart Upsell Rule | `base.group_user` (Internal Users) | 1 | 1 | 1 | 1 |
+| `model_vantage_sales_dashboard` | Executive Sales Cockpit | `base.group_user` (Internal Users) | 1 | 1 | 1 | 1 |
