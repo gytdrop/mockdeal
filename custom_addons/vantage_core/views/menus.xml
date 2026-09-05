@@ -12,7 +12,6 @@
         <menuitem id="menu_vantageops_dashboard"
                   name="Dashboard"
                   parent="menu_vantageops_root"
-                  action="vantage_governance.action_vantage_sales_dashboard" 
                   sequence="10"/>
 
         <!-- Quotations Tab (Reusing native Odoo Sales action) -->

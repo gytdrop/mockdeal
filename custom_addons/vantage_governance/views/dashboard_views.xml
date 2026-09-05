@@ -127,4 +127,7 @@
         <field name="action_id" ref="action_vantage_sales_dashboard"/>
     </record>
 
+    <!-- Attach the action to the core menu item -->
+    <menuitem id="vantage_core.menu_vantageops_dashboard" action="action_vantage_sales_dashboard"/>
+
 </odoo>
