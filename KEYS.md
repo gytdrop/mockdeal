@@ -10,7 +10,7 @@ When interacting with AI assistants (**Antigravity** or **Claude**) or operating
 | :--- | :--- | :--- | :--- |
 | **`I am Akthar`** | **Akthar** (Commercial Control) | `custom_addons/vantage_governance/` | Margin governance, `action_confirm()` high-risk block, `mail.activity` chatter escalations, QWeb portal counter-offer UI, 3-round circuit breaker. **Forbidden from touching fulfillment or core.** |
 | **`I am Ashrith`** | **Ashrith** (Operational Execution) | `custom_addons/vantage_fulfillment/` | `_compute_split_requirement()`, `action_split_fulfillments()` multi-warehouse auto-splitting, `margin_delta` on line items & optional products. **Forbidden from touching governance or core.** |
-| **`I am Afteb`** | **Afteb** (Restricted Contributor) | `mockdeal` active canvas only | **RESTRICTED: Forbidden from working in `VantageOps` and forbidden from pushing to `VantageOps`.** All work and commits must stay strictly within `mockdeal`. |
+| **`I am Aftab`** / **`I am Afteb`** | **Aftab** (Restricted Contributor) | `mockdeal` active canvas only | **RESTRICTED: Forbidden from working in `VantageOps` and forbidden from pushing to `VantageOps`.** All work and commits must stay strictly within `mockdeal`. |
 
 ---
 
