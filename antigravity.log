@@ -223,3 +223,13 @@ ACTION: Bootstrap 5 Dashboard UI & Live Activity Badges
 DETAILS: Updated dashboard_views.xml with thick accent border-5 cards, shadow-sm cards, pill badges, and structured live activity feed with native status badges. Added action_view_approvals method alias in vantage_dashboard.py.
 STATUS: Verified
 ------------------------------------------------------------------------------
+[2026-09-05 17:33:42] [AGENT: Antigravity] [PERSONA: Akthar]
+ACTION: Enable Customer Signup on Login Page
+DETAILS: Identified that website.auth_signup_uninvited was set to 'b2b', which suppressed signup_enabled on /web/login and blocked the custom signup button from commit 6ffbca2. Configured website auth_signup_uninvited to 'b2c', upgraded vantage_governance, and verified /web/login and /web/signup return HTTP 200 with prominent Sign Up button.
+STATUS: Verified
+------------------------------------------------------------------------------
+[2026-09-05 17:46:40] [AGENT: Antigravity] [PERSONA: Akthar]
+ACTION: Promote Clean Code to VantageOps
+DETAILS: Promoted and synchronized verified custom_addons (vantage_core, vantage_fulfillment, vantage_governance, hackathon modules) to VantageOps directory following user instruction. Adhered to Clean Code Only rule (excluded logs, markdown, and pycache). Maintained strict non-staging rule in VantageOps.
+STATUS: Verified
+------------------------------------------------------------------------------
