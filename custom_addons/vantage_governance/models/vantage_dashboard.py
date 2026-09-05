@@ -400,6 +400,20 @@ class VantageSalesDashboard(models.Model):
                     'promoted_tag': 'Hot Deal (78% Margin)',
                 })
 
+        # 6. Seed Quotation Template Bundle
+        if 'sale.order.template' in self.env and server_prod and setup_prod and sub_prod:
+            tmpl_obj = self.env['sale.order.template'].sudo()
+            bundle = tmpl_obj.search([('name', '=', 'DealFlow360 Enterprise Hybrid Bundle')], limit=1)
+            if not bundle:
+                tmpl_obj.create({
+                    'name': 'DealFlow360 Enterprise Hybrid Bundle',
+                    'sale_order_template_line_ids': [
+                        (0, 0, {'product_id': server_prod.id, 'product_uom_qty': 10.0, 'name': server_prod.name}),
+                        (0, 0, {'product_id': setup_prod.id, 'product_uom_qty': 1.0, 'name': setup_prod.name}),
+                        (0, 0, {'product_id': sub_prod.id, 'product_uom_qty': 1.0, 'name': sub_prod.name}),
+                    ],
+                })
+
         return {
             'type': 'ir.actions.client',
             'tag': 'display_notification',
@@ -411,7 +425,7 @@ class VantageSalesDashboard(models.Model):
                 ),
                 'sticky': False,
                 'type': 'success',
-                'next': {'type': 'ir.actions.act_window_reload'}
+                'next': {'type': 'ir.actions.client', 'tag': 'reload'}
             }
         }
 
