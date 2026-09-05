@@ -113,3 +113,22 @@ class SaleOrderLine(models.Model):
         for line in self:
             cost = line.product_id.standard_price * line.product_uom_qty if line.product_id else 0.0
             line.margin_delta = round(line.price_subtotal - cost, 2)
+
+
+class SaleOrderOption(models.Model):
+    _inherit = 'sale.order.option'
+
+    margin_delta = fields.Float(
+        string='Margin Delta ($)',
+        compute='_compute_margin_delta',
+        store=True,
+        help="Net profit contribution of this optional product."
+    )
+
+    @api.depends('price_unit', 'product_id', 'quantity', 'discount')
+    def _compute_margin_delta(self):
+        for option in self:
+            cost = option.product_id.standard_price * option.quantity if option.product_id else 0.0
+            # Price after discount
+            price_subtotal = option.price_unit * option.quantity * (1 - (option.discount or 0.0) / 100.0)
+            option.margin_delta = round(price_subtotal - cost, 2)
