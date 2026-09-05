@@ -1,8 +1,9 @@
 {
-    'name': 'Hackathon Feature B',
+    'name': 'DealFlow - Fulfillment, Subscriptions & Upsells',
     'version': '1.0',
-    'category': 'Custom',
-    'summary': 'Feature B Extension (Teammate B)',
+    'category': 'Sales',
+    'summary': 'Warehouse Splitting, Hybrid Billing & Upsell Engine (Ashrith)',
+    'author': 'Ashrith',
     'depends': ['hackathon_core'],
     'data': [
         'views/feature_b_views.xml',
