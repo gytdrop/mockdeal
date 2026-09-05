@@ -23,6 +23,8 @@ When interacting with AI assistants (**Antigravity** or **Claude**) or operating
 | **`log period`** | Alias for `add to your period`. Flags a work milestone as complete. | `workonmyperiod.log` |
 | **`show logs`** | Displays recent entries from all agent logs for auditing. | Terminal / Chat output |
 | **`update explainer`** | Scans recent commits, code updates, and logs to synchronize and expand `EXPLAINER.md`. | `EXPLAINER.md` + `antigravity.log` / `workonmyperiod.log` |
+| **`update summary`** | Scans recent UI additions, tabs, and models to synchronize and expand `SUMMARY.md`. | `SUMMARY.md` + `antigravity.log` / `workonmyperiod.log` |
+
 
 
 ---
