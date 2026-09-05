@@ -309,3 +309,17 @@ DETAILS:
 5. Tested and verified full database module upgrade (vantage_core, vantage_governance, vantage_fulfillment) on vantage_db with zero errors.
 STATUS: Verified & Committed to mockdeal
 ------------------------------------------------------------------------------
+
+[2026-09-05 21:39:20] [AGENT: Antigravity] [PERSONA: Akthar]
+ACTION: Delivered Turnkey Seed Data & Warehouse Shipping Cost Weighting (Commit 35bc6c7)
+DETAILS:
+1. Extended stock.warehouse with shipping_cost_weight (default 1.0 for Main, 2.5 for East) and base_shipping_cost ($25/$60) in custom_addons/vantage_fulfillment/models/sale_order.py.
+2. Added estimated_shipment_count, estimated_shipping_cost, and fulfillment_split_summary to sale.order.
+3. Enhanced action_split_fulfillments() to calculate weighted shipment legs and auto-route deficits to optimal least-cost secondary warehouses.
+4. Implemented action_consolidate_backorders() to dynamically merge split backorder lines into primary warehouse shipments upon replenishment.
+5. Injected logistics metrics, 'Accept Suggested Split', and 'Consolidate Backorders' buttons into page_ashrith_fulfillment in fulfillment_views.xml, plus warehouse cost weighting form view extension.
+6. Implemented 1-click action_load_turnkey_seed_data() in custom_addons/vantage_governance/models/vantage_dashboard.py pre-seeding Bronze/Silver/Gold accounts, Main & East warehouses with real stock quants (5 Main, 15 East), demo Hardware/Service/Subscription products, and Upsell pairing rules.
+7. Added '⚡ Load Turnkey Seed Data' quick action button in Executive Sales Cockpit header (dashboard_views.xml).
+8. Passed comprehensive automated test script validating all 7 steps end-to-end: quote creation, risk breach, warehouse cost calculation, auto-split, consolidation, smart upsell, hybrid billing schedules, two-tier approval, and final confirmation.
+STATUS: Verified & Committed to mockdeal
+------------------------------------------------------------------------------
