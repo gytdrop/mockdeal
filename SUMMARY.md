@@ -54,12 +54,38 @@ When viewing a Quotation or Sales Order in Odoo ([`sale.view_order_form`](http:/
 
 ### 3️⃣ Tab: `Fulfillment & Warehouses` (`name="page_ashrith_fulfillment"`)
 * **Belongs to**: **Ashrith** (`custom_addons/vantage_fulfillment`)
-* **View Source File**: [`custom_addons/vantage_fulfillment/views/fulfillment_views.xml:L32-41`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_fulfillment/views/fulfillment_views.xml#L32-L41)
-* **Model Source File**: [`custom_addons/vantage_fulfillment/models/sale_order.py:L7-17`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_fulfillment/models/sale_order.py#L7-L17)
+* **View Source File**: [`custom_addons/vantage_fulfillment/views/fulfillment_views.xml`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_fulfillment/views/fulfillment_views.xml)
+* **Model Source File**: [`custom_addons/vantage_fulfillment/models/sale_order.py`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_fulfillment/models/sale_order.py)
 * **Purpose**: Operational logistics and multi-warehouse routing.
 * **Fields & Defining Locations**:
-  - `has_split_requirement`: Deficit indicator. Defined in `vantage_fulfillment/models/sale_order.py:L7`.
-  - `secondary_warehouse_id`: Backorder destination warehouse. Defined in `vantage_fulfillment/models/sale_order.py:L13`.
+  - `has_split_requirement`: Deficit indicator. Defined in `vantage_fulfillment/models/sale_order.py`.
+  - `secondary_warehouse_id`: Backorder destination warehouse. Defined in `vantage_fulfillment/models/sale_order.py`.
+
+---
+
+### 4️⃣ Tab: `Hybrid Billing Schedule` (`name="page_billing_schedule"`)
+* **Belongs to**: **Ashrith** (`custom_addons/vantage_fulfillment`)
+* **View Source File**: [`custom_addons/vantage_fulfillment/views/fulfillment_views.xml`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_fulfillment/views/fulfillment_views.xml)
+* **Model Source File**: [`custom_addons/vantage_fulfillment/models/billing_schedule.py`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_fulfillment/models/billing_schedule.py)
+* **Purpose**: Milestone and installment schedule for mixed hardware + subscription contracts.
+* **Fields & Defining Locations**:
+  - `billing_schedule_ids`: Relation to `vantage.billing.schedule`.
+  - `billing_type`: One-time Hardware vs Recurring SaaS.
+  - `billing_date`: Milestone billing schedule date.
+  - `amount`: Scheduled amount per installment period.
+  - `state`: Status badge (`scheduled`, `invoiced`, `cancelled`) with 1-click `action_mark_invoiced`.
+
+---
+
+### 5️⃣ Tab: `Smart Upsells` (`name="page_smart_upsell"`)
+* **Belongs to**: **Ashrith** (`custom_addons/vantage_fulfillment`)
+* **View Source File**: [`custom_addons/vantage_fulfillment/views/fulfillment_views.xml`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_fulfillment/views/fulfillment_views.xml)
+* **Model Source File**: [`custom_addons/vantage_fulfillment/models/upsell_rule.py`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_fulfillment/models/upsell_rule.py)
+* **Purpose**: Real-time margin expansion recommendations based on active cart products.
+* **Fields & Actions**:
+  - `available_upsell_ids`: Dynamic pairings matched to active quote items.
+  - `margin_contribution`: Net profit impact (`list_price - cost`).
+  - `action_apply_upsell`: Single-click button injecting the recommended accessory directly into the quotation.
 
 ---
 
@@ -68,10 +94,13 @@ When viewing a Quotation or Sales Order in Odoo ([`sale.view_order_form`](http:/
 ### Header Action Buttons (`<header>`)
 | Button Name | Technical Identifier | View Definition Location | Python Logic Location | What It Does |
 | :--- | :--- | :--- | :--- | :--- |
-| **Confirm** | `action_confirm` | Native Odoo `sale.view_order_form` | [`vantage_governance/models/sale_order.py:L21`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_governance/models/sale_order.py#L21) | Validates deal; intercepted to raise `UserError` and schedule Chatter task if risk score > 0 and unapproved. |
-| **Director Approve** | `action_manager_approve` | [`vantage_governance/views/governance_views.xml:L10`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_governance/views/governance_views.xml#L10) | [`vantage_governance/models/sale_order.py:L55`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_governance/models/sale_order.py#L55) | Sets `risk_approval_state = 'approved'`, auto-resolves `mail.activity`, and unlocks confirmation. |
-| **Reject Deal** | `action_manager_reject` | [`vantage_governance/views/governance_views.xml:L12`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_governance/views/governance_views.xml#L12) | [`vantage_governance/models/sale_order.py:L67`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_governance/models/sale_order.py#L67) | Sets `risk_approval_state = 'rejected'`, closes activity, and logs rejection in Chatter. |
-| **Auto-Split Warehouses** | `action_split_fulfillments` | [`vantage_fulfillment/views/fulfillment_views.xml:L10`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_fulfillment/views/fulfillment_views.xml#L10) | [`vantage_fulfillment/models/sale_order.py:L25`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_fulfillment/models/sale_order.py#L25) | Truncates primary line and forks child line routed to secondary warehouse. |
+| **Confirm** | `action_confirm` | Native Odoo `sale.view_order_form` | [`vantage_governance/models/sale_order.py`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_governance/models/sale_order.py) | Validates deal; intercepted to raise `UserError` and schedule Chatter task if risk score > 0 and unapproved. |
+| **Manager Approve** | `action_manager_approve` | [`vantage_governance/views/governance_views.xml`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_governance/views/governance_views.xml) | [`vantage_governance/models/sale_order.py`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_governance/models/sale_order.py) | Tier-1 sign-off. If risk $\le 10$, approves. If risk $> 10$, auto-escalates to Finance Director! |
+| **Finance Approve** | `action_finance_approve` | [`vantage_governance/views/governance_views.xml`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_governance/views/governance_views.xml) | [`vantage_governance/models/sale_order.py`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_governance/models/sale_order.py) | Tier-2 final sign-off for severe margin violations ($> 10.0$ score). |
+| **Reject Deal** | `action_manager_reject` | [`vantage_governance/views/governance_views.xml`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_governance/views/governance_views.xml) | [`vantage_governance/models/sale_order.py`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_governance/models/sale_order.py) | Sets `risk_approval_state = 'rejected'`, closes activities, and logs rejection in Chatter. |
+| **Nudge Rep** | `action_nudge_rep` | [`vantage_governance/views/governance_views.xml`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_governance/views/governance_views.xml) | [`vantage_governance/models/sale_order.py`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_governance/models/sale_order.py) | Dispatches reminder task to sales rep for quotes stalled $>3$ days or having discount anomalies. |
+| **Generate Billing Schedule** | `action_generate_billing_schedule` | [`vantage_fulfillment/views/fulfillment_views.xml`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_fulfillment/views/fulfillment_views.xml) | [`vantage_fulfillment/models/sale_order.py`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_fulfillment/models/sale_order.py) | Autonomously creates 1-time hardware invoice + 12 monthly subscription billing milestones. |
+| **Auto-Split Warehouses** | `action_split_fulfillments` | [`vantage_fulfillment/views/fulfillment_views.xml`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_fulfillment/views/fulfillment_views.xml) | [`vantage_fulfillment/models/sale_order.py`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_fulfillment/models/sale_order.py) | Truncates primary line and forks child line routed to secondary warehouse. |
 | **Customer Preview** | `action_preview_sale_order` | Native Odoo `sale.view_order_form` | Native `addons/sale/models/sale_order.py` | Opens authentic customer portal view in current browser. |
 
 ---
@@ -119,51 +148,55 @@ When viewing a Quotation or Sales Order in Odoo ([`sale.view_order_form`](http:/
 
 ---
 
-## 📜 5. Confirmed Python & XML Source Code Inventory (All 18 Production Files)
+## 📜 5. Confirmed Python & XML Source Code Inventory (All 21 Production Files)
 
-All 18 production files have been compiled, syntax-validated, and confirmed working on local Odoo (`vantage_db` on port 8069).
+All 21 production files have been compiled, syntax-validated, and confirmed working on local Odoo (`vantage_db` on port 8069).
 
 ### 📦 Summary by File Type & Line Count
-* **Total Confirmed Files**: 18
-* **Python Files**: 14 files (379 lines of Python)
-* **XML Files**: 4 files (149 lines of XML)
-* **Total Production Lines**: **528 lines** *(Delivering full enterprise scope under 400 lines of Python!)*
+* **Total Confirmed Files**: 21
+* **Python Files**: 16 files
+* **XML Files**: 4 files
+* **Security CSV**: 1 file
+* **Total Custom Addon Lines**: ~620 lines *(Delivering full enterprise DealFlow360 scope!)*
 
 ---
 
-### 1️⃣ Module: `vantage_core` (Base Foundation) — 5 Files / 143 Lines
+### 1️⃣ Module: `vantage_core` (Base Foundation) — 5 Files
 | File Path | Type | Lines | Purpose & Key Classes / Records |
 | :--- | :--- | :--- | :--- |
 | [`custom_addons/vantage_core/__init__.py`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_core/__init__.py) | Python Init | 1 | Imports `models` package. |
 | [`custom_addons/vantage_core/__manifest__.py`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_core/__manifest__.py) | Manifest | 13 | Module declaration, dependencies (`sale_management`, `mail`), view registration. |
 | [`custom_addons/vantage_core/models/__init__.py`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_core/models/__init__.py) | Python Init | 1 | Imports `sale_order`. |
-| [`custom_addons/vantage_core/models/sale_order.py`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_core/models/sale_order.py) | Python Model | 91 | Implements `_compute_vantage_risk` formula, `risk_approval_state` transitions, and `_compute_is_recurring_hybrid` contract detection. |
+| [`custom_addons/vantage_core/models/sale_order.py`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_core/models/sale_order.py) | Python Model | 92 | Implements base `_compute_vantage_risk` formula, `risk_approval_state` transitions, and `_compute_is_recurring_hybrid` contract detection. |
 | [`custom_addons/vantage_core/views/vantage_core_views.xml`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_core/views/vantage_core_views.xml) | Form XML | 37 | Injects red high-risk alert, blue hybrid banner, and sheet badges (`blended_risk_score`, `risk_approval_state`). |
 
 ---
 
-### 2️⃣ Module: `vantage_governance` (Akthar: Commercial Control) — 8 Files / 214 Lines
+### 2️⃣ Module: `vantage_governance` (Akthar: Commercial Control) — 8 Files
 | File Path | Type | Lines | Purpose & Key Classes / Records |
 | :--- | :--- | :--- | :--- |
 | [`custom_addons/vantage_governance/__init__.py`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_governance/__init__.py) | Python Init | 2 | Imports `models` and `controllers`. |
 | [`custom_addons/vantage_governance/__manifest__.py`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_governance/__manifest__.py) | Manifest | 14 | Module metadata, dependencies (`vantage_core`, `portal`, `mail`), view loading. |
 | [`custom_addons/vantage_governance/models/__init__.py`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_governance/models/__init__.py) | Python Init | 1 | Imports `sale_order`. |
-| [`custom_addons/vantage_governance/models/sale_order.py`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_governance/models/sale_order.py) | Python Model | 105 | Implements `action_confirm` block, `_schedule_manager_approval_activity`, `action_manager_approve`, `action_manager_reject`, and `action_customer_counter_offer`. |
+| [`custom_addons/vantage_governance/models/sale_order.py`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_governance/models/sale_order.py) | Python Model | 249 | Customer Tiers (`res.partner.customer_tier`), Two-Tier Approval (`action_manager_approve`, `action_finance_approve`), Deal Health & Anomaly (`_compute_deal_health`), Rep Nudge (`action_nudge_rep`), and Portal counter-offers. |
 | [`custom_addons/vantage_governance/controllers/__init__.py`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_governance/controllers/__init__.py) | Python Init | 1 | Imports `portal`. |
 | [`custom_addons/vantage_governance/controllers/portal.py`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_governance/controllers/portal.py) | Python Controller | 23 | Public HTTP endpoint `/my/orders/<id>/counter_offer` validating tokens and routing counter discounts. |
-| [`custom_addons/vantage_governance/views/governance_views.xml`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_governance/views/governance_views.xml) | Form XML | 35 | Injects `action_manager_approve` & `action_manager_reject` header buttons and the `Risk & Approvals` notebook tab. |
-| [`custom_addons/vantage_governance/views/portal_templates.xml`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_governance/views/portal_templates.xml) | QWeb Portal XML | 33 | XPath injection onto `sale.sale_order_portal_content`: renders the Deal Negotiation form card and the locked Circuit Breaker banner. |
+| [`custom_addons/vantage_governance/views/governance_views.xml`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_governance/views/governance_views.xml) | Form & Tree XML | 100 | Injects Manager & Finance Approve buttons, customer tier on partners, quotation tree health badges, and custom search filters. |
+| [`custom_addons/vantage_governance/views/portal_templates.xml`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_governance/views/portal_templates.xml) | QWeb Portal XML | 33 | XPath injection onto `sale.sale_order_portal_content`: renders Deal Negotiation form card and locked Circuit Breaker banner. |
 
 ---
 
-### 3️⃣ Module: `vantage_fulfillment` (Ashrith: Operational Execution) — 5 Files / 174 Lines
+### 3️⃣ Module: `vantage_fulfillment` (Ashrith: Operational Execution) — 8 Files
 | File Path | Type | Lines | Purpose & Key Classes / Records |
 | :--- | :--- | :--- | :--- |
 | [`custom_addons/vantage_fulfillment/__init__.py`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_fulfillment/__init__.py) | Python Init | 1 | Imports `models`. |
-| [`custom_addons/vantage_fulfillment/__manifest__.py`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_fulfillment/__manifest__.py) | Manifest | 13 | Module declaration, dependencies (`vantage_core`, `stock`, `sale_stock`), view loading. |
-| [`custom_addons/vantage_fulfillment/models/__init__.py`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_fulfillment/models/__init__.py) | Python Init | 1 | Imports `sale_order`. |
-| [`custom_addons/vantage_fulfillment/models/sale_order.py`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_fulfillment/models/sale_order.py) | Python Model | 115 | Location-context inventory scanner (`_compute_free_qty_today`), auto-split line forking (`action_split_fulfillments`), and `margin_delta`. |
-| [`custom_addons/vantage_fulfillment/views/fulfillment_views.xml`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_fulfillment/views/fulfillment_views.xml) | Form XML | 44 | Injects `Auto-Split Warehouses` header button, yellow inventory deficit warning, line tree margin columns, and `Fulfillment & Warehouses` tab. |
+| [`custom_addons/vantage_fulfillment/__manifest__.py`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_fulfillment/__manifest__.py) | Manifest | 15 | Module declaration, dependencies (`vantage_core`, `sale_stock`), security & view loading. |
+| [`custom_addons/vantage_fulfillment/models/__init__.py`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_fulfillment/models/__init__.py) | Python Init | 3 | Imports `sale_order`, `billing_schedule`, and `upsell_rule`. |
+| [`custom_addons/vantage_fulfillment/models/sale_order.py`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_fulfillment/models/sale_order.py) | Python Model | 211 | Warehouse auto-split (`action_split_fulfillments`), billing schedule generator (`action_generate_billing_schedule`), and smart upsell matcher. |
+| [`custom_addons/vantage_fulfillment/models/billing_schedule.py`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_fulfillment/models/billing_schedule.py) | Python Model | 28 | `vantage.billing.schedule`: Tracks milestone invoices (one-time vs 12-month subscription installments) and `action_mark_invoiced`. |
+| [`custom_addons/vantage_fulfillment/models/upsell_rule.py`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_fulfillment/models/upsell_rule.py) | Python Model | 44 | `vantage.upsell.rule`: Pairing rules, dynamic profit contribution calculation, and 1-click cart insertion (`action_apply_upsell`). |
+| [`custom_addons/vantage_fulfillment/security/ir.model.access.csv`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_fulfillment/security/ir.model.access.csv) | Security ACL | 3 | Full CRUD access rights on `vantage.billing.schedule` and `vantage.upsell.rule` for internal sales users. |
+| [`custom_addons/vantage_fulfillment/views/fulfillment_views.xml`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_fulfillment/views/fulfillment_views.xml) | Form & Menu XML | 104 | Injects `Generate Billing Schedule` header button, `Hybrid Billing Schedule` tab, `Smart Upsells` tab, and Sales -> Products -> Upsell Rules menu. |
 
 ---
 

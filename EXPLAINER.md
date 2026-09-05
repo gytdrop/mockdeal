@@ -269,16 +269,218 @@ Use this section whenever a judge asks: *"What exact lines did you write?", "How
 
 ---
 
-## ⚡ 4. The 6 Native Odoo "Gigs" Summary Table
+### 🍳 Recipe 7: Customer Tier Dynamic Margin Floors
+* **Judge Question**: *"Why shouldn't all customers have the same discount rules? How does tiering work?"*
+* **The Code You Wrote** ([`vantage_governance/models/sale_order.py`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_governance/models/sale_order.py)):
+  ```python
+  class ResPartner(models.Model):
+      _inherit = 'res.partner'
+
+      customer_tier = fields.Selection([
+          ('bronze', 'Bronze (Max 5% Discount)'),
+          ('silver', 'Silver (Max 10% Discount)'),
+          ('gold', 'Gold / Strategic VIP (Max 15% Discount)')
+      ], string='Customer Commercial Tier', default='silver', required=True)
+  ```
+  ```python
+  # Dynamic ceiling applied in _compute_vantage_risk:
+  tier_limits = {'bronze': 5.0, 'silver': 10.0, 'gold': 15.0}
+  tier_ceiling = tier_limits.get(order.partner_id.customer_tier, 10.0)
+
+  for line in order.order_line:
+      if line.discount > tier_ceiling:
+          worst_breach = max(worst_breach, line.discount - tier_ceiling)
+  ```
+* **How It Works**:
+  1. Extends `res.partner` with commercial tiers: Bronze (5%), Silver (10%), and Gold (15%).
+  2. The risk computation dynamically fetches `order.partner_id.customer_tier` to set the acceptable discount ceiling.
+  3. A 12% discount for a Gold VIP account incurs 0 risk penalty; that identical 12% discount for a Bronze customer creates a 7% margin breach, instantly triggering manager review!
+* **What to Tell the Judge**:
+  > *"Enterprise discounting must reflect relationship value. A 12% discount on a Strategic Gold partner is standard business, but on a transactional Bronze client, it's unacceptable margin leakage. Our ORM dynamically resolves the customer's tier ceiling on every line change and penalizes discount breaches relative to their contractual tier."*
+
+---
+
+### 🍳 Recipe 8: Two-Tier Governance Chain (Manager + Finance Director Auto-Escalation)
+* **Judge Question**: *"How do you handle massive margin violations that exceed a frontline sales manager's authority?"*
+* **The Code You Wrote** ([`vantage_governance/models/sale_order.py`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_governance/models/sale_order.py)):
+  ```python
+  def action_manager_approve(self):
+      """Tier 1: Sales Manager Approval (Escalates to Finance if Score > 10)"""
+      self.ensure_one()
+      if self.blended_risk_score > 10.0:
+          self.write({'risk_approval_state': 'pending_finance'})
+          self._resolve_approval_activities(_("Manager approval granted. Escalated to Finance."))
+          self._schedule_finance_approval_activity()
+          self.message_post(body=_(
+              "👔 <strong>Sales Manager Approval Granted</strong> by %s.<br/>"
+              "⚠️ Blended Risk Score (%s) exceeds Tier-1 threshold (10.0). "
+              "Escalated to <strong>Finance Director</strong> for final sign-off."
+          ) % (self.env.user.name, self.blended_risk_score))
+      else:
+          self.write({'risk_approval_state': 'approved'})
+          self._resolve_approval_activities(_("Sales Manager approval granted by %s.") % self.env.user.name)
+          self.message_post(body=_("✅ <strong>Commercial Approval Granted</strong> by Sales Manager %s. Deal unlocked for confirmation.") % self.env.user.name)
+
+  def action_finance_approve(self):
+      """Tier 2: Finance Director Final Approval"""
+      self.ensure_one()
+      self.write({'risk_approval_state': 'approved'})
+      self._resolve_approval_activities(_("Finance Director approval granted by %s.") % self.env.user.name)
+      self.message_post(body=_("🏛️ <strong>Finance Director Approval Granted</strong> by %s. Deal unlocked for confirmation.") % self.env.user.name)
+  ```
+* **How It Works**:
+  1. Moderate violations (score $\le 10$) are resolved with a single click by the Sales Manager (`action_manager_approve`).
+  2. Severe violations (score $> 10$) trigger autonomous escalation: the manager's sign-off is logged, but state transitions to `pending_finance`, and a high-priority `mail.activity` is dispatched to the Finance Director.
+  3. Only when the Finance Director clicks `Finance Approve` is the deal unlocked for `action_confirm`.
+* **What to Tell the Judge**:
+  > *"Real enterprise governance is multi-tiered. We built an autonomous escalation chain. If a deal's blended risk score is 10 or less, the sales manager can sign off directly. But if risk exceeds 10, the manager's approval autonomously cascades the deal to the Finance Director with a high-priority Chatter activity. Confirmation remains hard-locked until Tier-2 financial sign-off is granted."*
+
+---
+
+### 🍳 Recipe 9: Deal Health & Rep Anomaly Tracker
+* **Judge Question**: *"How do sales executives detect stalled quotes and rogue sales rep discounting?"*
+* **The Code You Wrote** ([`vantage_governance/models/sale_order.py`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_governance/models/sale_order.py)):
+  ```python
+  @api.depends('write_date', 'order_line.discount', 'blended_risk_score')
+  def _compute_deal_health(self):
+      today = fields.Datetime.now()
+      for order in self:
+          last_active = order.write_date or order.create_date or today
+          delta_days = (today - last_active).days
+          order.days_inactive = delta_days
+
+          max_line_disc = max(order.order_line.mapped('discount')) if order.order_line else 0.0
+          order.discount_anomaly = max_line_disc >= 20.0
+
+          if order.blended_risk_score > 15.0 or order.discount_anomaly:
+              order.deal_health = 'margin_bleed'
+          elif delta_days >= 3 and order.state in ('draft', 'sent'):
+              order.deal_health = 'stalled'
+          else:
+              order.deal_health = 'healthy'
+  ```
+  ```python
+  def action_nudge_rep(self):
+      """Automated Rep Escalation for Stalled Quotes"""
+      self.ensure_one()
+      rep = self.user_id or self.env.user
+      self.activity_schedule(
+          activity_type_id=self.env.ref('mail.mail_activity_data_todo').id,
+          user_id=rep.id,
+          summary='⚠️ Stalled Quotation: Follow Up Required',
+          note=f"Quotation {self.name} has been inactive for {self.days_inactive} days. Contact customer or close opportunity."
+      )
+  ```
+* **How It Works**:
+  1. Computes `days_inactive` from `write_date` in real time.
+  2. Flags `discount_anomaly = True` if any line has $\ge 20\%$ discount.
+  3. Sets `deal_health`: `margin_bleed` (severe leak), `stalled` ($\ge 3$ days inactive), or `healthy`.
+  4. In Quotation Tree and Search views, color-coded badges and custom filters allow leadership to filter stalled deals and click **"Nudge Rep"** to instantly schedule follow-up tasks.
+* **What to Tell the Judge**:
+  > *"Sales leaders suffer from invisible deal pipeline decay. VantageOps computes a Deal Digital Twin that tracks days of inactivity and rogue rep discounting. Quotation list views display instant health badges, and sales leaders can filter stalled deals and click 'Nudge Rep' to autonomously schedule follow-up tasks in the rep's personal queue."*
+
+---
+
+### 🍳 Recipe 10: Autonomous Hybrid Billing Schedules
+* **Judge Question**: *"How do you handle enterprise contracts combining physical hardware and monthly SaaS billing?"*
+* **The Code You Wrote** ([`vantage_fulfillment/models/sale_order.py`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_fulfillment/models/sale_order.py) & [`billing_schedule.py`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_fulfillment/models/billing_schedule.py)):
+  ```python
+  def action_generate_billing_schedule(self):
+      self.ensure_one()
+      self.billing_schedule_ids.filtered(lambda s: s.state == 'scheduled').unlink()
+
+      one_time_total = sum(l.price_subtotal for l in self.order_line if not l.is_subscription_item)
+      sub_lines = self.order_line.filtered(lambda l: l.is_subscription_item)
+      recurring_monthly = sum(l.price_subtotal for l in sub_lines)
+      today = fields.Date.context_today(self)
+      schedules = []
+
+      # 1. One-Time Hardware Invoice
+      if one_time_total > 0 or not sub_lines:
+          schedules.append({
+              'order_id': self.id,
+              'sequence': 1,
+              'billing_date': today,
+              'description': 'Initial Delivery & Hardware / Setup Charges',
+              'amount': one_time_total,
+              'billing_type': 'one_time',
+          })
+
+      # 2. Recurring Subscription Installments (12 Monthly Cycles)
+      if recurring_monthly > 0:
+          for month in range(1, 13):
+              schedules.append({
+                  'order_id': self.id,
+                  'sequence': month + 1,
+                  'billing_date': today + timedelta(days=30 * month),
+                  'description': f'Recurring SaaS Subscription (Cycle {month} of 12)',
+                  'amount': round(recurring_monthly / 12.0, 2),
+                  'billing_type': 'recurring',
+              })
+
+      self.env['vantage.billing.schedule'].create(schedules)
+  ```
+* **How It Works**:
+  1. Inspects line items to separate upfront physical assets from recurring cloud services.
+  2. Autonomously generates a 13-period schedule: 1 upfront capital invoice + 12 monthly recurring installments.
+  3. Renders an interactive "Hybrid Billing Schedule" tab in the quotation where periods can be tracked, inspected, and marked as invoiced with status badges.
+* **What to Tell the Judge**:
+  > *"Modern deals are rarely pure hardware or pure software—they are hybrid. Standard Odoo lumps everything into a single invoice. VantageOps parses contract items and autonomously splits the quote into an upfront hardware invoice plus 12 monthly subscription billing installments, giving finance complete visibility over milestone cash flow."*
+
+---
+
+### 🍳 Recipe 11: Live Smart Upsell Engine & 1-Click Cart Injection
+* **Judge Question**: *"How does the system proactively protect and expand margins during quoting?"*
+* **The Code You Wrote** ([`vantage_fulfillment/models/sale_order.py`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_fulfillment/models/sale_order.py) & [`upsell_rule.py`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_fulfillment/models/upsell_rule.py)):
+  ```python
+  @api.depends('order_line.product_id')
+  def _compute_available_upsells(self):
+      rule_obj = self.env['vantage.upsell.rule']
+      for order in self:
+          prod_ids = order.order_line.mapped('product_id').ids
+          matching_rules = rule_obj.search([
+              ('source_product_id', 'in', prod_ids),
+              ('recommended_product_id', 'not in', prod_ids)
+          ])
+          order.available_upsell_ids = matching_rules
+
+  # In vantage.upsell.rule:
+  def action_apply_upsell(self):
+      order_id = self.env.context.get('active_id')
+      order = self.env['sale.order'].browse(order_id)
+      order.order_line.create({
+          'order_id': order.id,
+          'product_id': self.recommended_product_id.id,
+          'product_uom_qty': 1.0,
+          'price_unit': self.recommended_product_id.list_price,
+          'name': f"[Upsell] {self.recommended_product_id.display_name}",
+      })
+  ```
+* **How It Works**:
+  1. As products are added to the cart, `_compute_available_upsells` detects complementary high-margin rules (e.g., Extended Warranty, Protection Plan).
+  2. Dynamically calculates the estimated profit contribution (`list_price - standard_cost`).
+  3. Displays recommendations in the quotation's **"Smart Upsells"** tab with profit badges.
+  4. Clicking **"Add to Quote"** instantly injects the item into quotation lines and logs the margin boost to Chatter!
+* **What to Tell the Judge**:
+  > *"Instead of passive cross-sell catalogs, VantageOps acts as an active profit co-pilot. When a rep adds a high-value asset, our engine scans pairing rules, calculates the net profit boost in real time, and provides a 1-click 'Add to Quote' action that appends the accessory and immediately lifts overall deal margin."*
+
+---
+
+## ⚡ 4. The 11 Native Odoo "Gigs" Summary Table
 
 | Gig Name | Core Hook Used | Why It Beats Custom Code | Python Lines |
 | :--- | :--- | :--- | :--- |
 | **Chatter Task Escalation** | `mail.activity` | Drops tasks into navbar notifications with zero custom queues. | ~25 lines |
 | **Confirmation Interceptor** | `super().action_confirm()` | Halts high-risk deals without breaking standard delivery/invoice flows. | ~15 lines |
+| **Two-Tier Approval Escalation**| `risk_approval_state` + `mail.activity` | Cascades approvals from Manager to Finance Director autonomously. | ~35 lines |
+| **Customer Tier Dynamic Floors**| `res.partner.customer_tier` | Contextualizes margin risk to customer tier (5%, 10%, 15%). | ~20 lines |
+| **Deal Health & Rep Anomaly** | `write_date` delta + discount scan | Detects pipeline decay (>3 days) & discount anomalies (>=20%). | ~30 lines |
 | **Headless Portal Negotiation** | QWeb `<xpath>` + HTTP Route | Provides customer counter-offer UI without React/Vue complexity. | ~40 lines |
 | **Anti-Haggling Circuit Breaker** | Computed `is_negotiation_locked` | Terminates endless negotiations at 3 rounds automatically. | ~15 lines |
-| **Multi-Warehouse Stock Splitting**| Line item forking + `stock.warehouse` | Generates separate warehouse pickings via native `sale_stock`. | ~45 lines |
-| **Algorithmic Blended Risk Matrix** | Weighted math formula | Factors volume + line-item rogue deviations in real time. | ~30 lines |
+| **Hybrid Billing Schedules** | `vantage.billing.schedule` | Autonomously splits 1-time hardware from 12 monthly SaaS cycles. | ~45 lines |
+| **Live Smart Upsell Engine** | `vantage.upsell.rule` + 1-click add | Scans pairings, computes profit impact, and injects into cart. | ~35 lines |
+| **Multi-Warehouse Stock Split** | Line item forking + `stock.warehouse` | Generates separate warehouse pickings via native `sale_stock`. | ~45 lines |
+| **Blended Risk Matrix** | Weighted math formula | Factors volume + line-item rogue deviations in real time. | ~30 lines |
 
 ---
 
