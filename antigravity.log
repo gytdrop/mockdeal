@@ -288,3 +288,13 @@ DETAILS:
 4. Upgraded vantage_governance on vantage_db and recomputed S00041: blended_risk_score dropped from 0.80 to 0.0, risk_approval_state transitioned to 'draft', the red high-risk alert banner disappeared, and quotation confirmation was unblocked. Tested boundary thresholds (2% safe, 15% manager escalation, 25% finance escalation).
 STATUS: Verified & Live
 ------------------------------------------------------------------------------
+
+[2026-09-05 19:07:10] [AGENT: Antigravity] [PERSONA: Akthar]
+ACTION: Enabled Customer Tier Selection on Partner Form & Quotation Form
+DETAILS:
+1. Replaced static widget="badge" on res.partner form view with widget="selection" in custom_addons/vantage_governance/views/governance_views.xml, allowing reps and admins to assign and switch customer tiers (Bronze, Silver, Gold) directly.
+2. Added customer tier badge column to Contacts tree view (base.view_partner_tree) for instant visual scanning of tier status.
+3. Added partner_customer_tier related field to sale.order in custom_addons/vantage_governance/models/sale_order.py, displaying customer tier badge next to the Customer field on quotations and providing an editable tier dropdown in the 'Risk & Approvals' tab to update customer tier on-the-fly.
+4. Upgraded vantage_governance on vantage_db and verified seamless tier updates and automatic risk score recomputations.
+STATUS: Verified & Live
+------------------------------------------------------------------------------

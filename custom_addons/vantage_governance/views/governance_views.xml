@@ -33,6 +33,14 @@
                 </button>
             </xpath>
 
+            <!-- Customer Tier Badge next to Customer field -->
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="partner_customer_tier" widget="badge"
+                       decoration-info="partner_customer_tier == 'bronze'"
+                       decoration-warning="partner_customer_tier == 'silver'"
+                       decoration-success="partner_customer_tier == 'gold'"/>
+            </xpath>
+
             <!-- Ensure Discount Percentage is ALWAYS visible & editable on Quotation Lines -->
             <xpath expr="//field[@name='order_line']/tree//field[@name='discount']" position="attributes">
                 <attribute name="groups">base.group_user</attribute>
@@ -44,6 +52,7 @@
                 <page name="page_akthar_approvals" string="Risk &amp; Approvals">
                     <group>
                         <group string="Commercial Governance &amp; Two-Tier Approvals">
+                            <field name="partner_customer_tier" widget="selection"/>
                             <field name="blended_risk_score" readonly="1"/>
                             <field name="risk_approval_state" widget="badge"
                                    decoration-info="risk_approval_state == 'draft'"
@@ -110,14 +119,26 @@
         </field>
     </record>
 
-    <!-- Partner Form Inheritance: Customer Tiers -->
+    <!-- Partner Form Inheritance: Customer Tiers (Editable Selection) -->
     <record id="view_partner_form_inherit_vantage" model="ir.ui.view">
         <field name="name">res.partner.form.inherit.vantage</field>
         <field name="model">res.partner</field>
         <field name="inherit_id" ref="base.view_partner_form"/>
         <field name="arch" type="xml">
             <xpath expr="//field[@name='vat']" position="after">
-                <field name="customer_tier" widget="badge"
+                <field name="customer_tier" widget="selection"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Partner Tree View Inheritance: Customer Tier Badge -->
+    <record id="view_partner_tree_inherit_vantage" model="ir.ui.view">
+        <field name="name">res.partner.tree.inherit.vantage</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='user_id']" position="after">
+                <field name="customer_tier" widget="badge" optional="show"
                        decoration-info="customer_tier == 'bronze'"
                        decoration-warning="customer_tier == 'silver'"
                        decoration-success="customer_tier == 'gold'"/>

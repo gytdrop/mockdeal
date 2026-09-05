@@ -34,6 +34,12 @@ class SaleOrder(models.Model):
         store=True
     )
     last_counter_offer = fields.Char(string='Last Counter-Offer Details', readonly=True)
+    partner_customer_tier = fields.Selection(
+        related='partner_id.customer_tier',
+        readonly=False,
+        string='Customer Tier',
+        help="Determines the permissible baseline discount ceiling before triggering approval workflows."
+    )
 
     # --- Deal Health & Anomaly Engine ---
     deal_health = fields.Selection([
