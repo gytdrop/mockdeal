@@ -17,6 +17,7 @@ class VantageCustomerPortal(CustomerPortal):
                 counter_discount=discount_val,
                 notes=notes
             )
+            request.session['portal_success'] = f"Counter-offer of {discount_val}% submitted successfully! VantageOps governance engine re-evaluated deal risk."
         except Exception as e:
             request.session['portal_error'] = str(e)
 

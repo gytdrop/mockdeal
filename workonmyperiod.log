@@ -262,9 +262,15 @@ ACTION: Synchronized origin/master and Rejected Destructive Ashrith Commits
 DETAILS: User requested to reject all of Ashrith's recent commits. Discovered 7 destructive commits pushed by Ashrith directly to origin/master (4c81383, 7e608ec, e42e67b, b2fd44c, 446f674, 7b0b106, 8677075) that improperly stripped models/views (has_split_requirement, available_upsell_ids, billing_schedule) and attempted invalid Odoo 18 list views. Force-aligned origin/master with clean, verified origin/main (commit 47643da). Discarded uncommitted working tree changes. Verified all modules load cleanly with zero errors.
 STATUS: Verified & Live on origin/main and origin/master
 ------------------------------------------------------------------------------
-[2026-09-05 18:13:00] [AGENT: Antigravity] [PERSONA: Akthar]
-ACTION: Centered Compact Purple Sign Up Button on Login Page
-DETAILS: Replaced stretched full-width signup button with centered, bounded (max-width: 260px) layout styled with enterprise purple (#714B67) matching Odoo login theme in custom_addons/vantage_governance/views/portal_templates.xml. Upgraded module and verified live on /web/login.
-STATUS: Verified
+[2026-09-05 18:52:00] [AGENT: Antigravity] [PERSONA: Akthar]
+ACTION: Integrated Deal Negotiation & Bargain Pitch Engine for Admin and Customer
+DETAILS: 
+1. Exposed 'Disc.%' (discount) column on quotation lines for all internal users by modifying order_line tree xpath attributes in custom_addons/vantage_governance/views/governance_views.xml, enabling admin and reps to pitch percentage discounts directly on quotation forms.
+2. Created vantage.bargain.wizard (custom_addons/vantage_governance/models/bargain_wizard.py) allowing admin to pitch counter discounts order-wide or per-line with concession rationale, updating lines, recalculating risk score, and advancing negotiation rounds.
+3. Added '🤝 Pitch Counter-Offer / Bargain' buttons to quotation header and 'Risk & Approvals' tab, plus 'Customer Portal' stat button.
+4. Auto-subscribed customer partner_id on sale.order create/write in custom_addons/vantage_governance/models/sale_order.py so portal customers never hit AccessError on draft quotations.
+5. Upgraded Deal Negotiation Portal UI in custom_addons/vantage_governance/views/portal_templates.xml with Bootstrap 5 layout, discount percentage input with % addon, and flash success alerts.
+6. Populated sample line on Quotation S00041 and passed automated end-to-end test verifying admin pitch, customer counter-offer, risk calculation, circuit breaker, and manager reset.
+STATUS: Verified & Live
 ------------------------------------------------------------------------------
 

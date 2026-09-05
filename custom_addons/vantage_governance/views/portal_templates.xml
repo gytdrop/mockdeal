@@ -3,30 +3,58 @@
     <!-- Task 2: Inherit portal order view to add counter-offer interface -->
     <template id="sale_order_portal_content_inherit_vantage" inherit_id="sale.sale_order_portal_content">
         <xpath expr="//section[@id='details']" position="before">
+            <!-- Negotiation Session Feedback Alerts -->
+            <t t-if="request.session.get('portal_success')">
+                <div class="alert alert-success alert-dismissible fade show mb-4 shadow-sm" role="alert">
+                    <i class="fa fa-check-circle me-2"/> <t t-esc="request.session.pop('portal_success')"/>
+                </div>
+            </t>
+            <t t-if="request.session.get('portal_error')">
+                <div class="alert alert-danger alert-dismissible fade show mb-4 shadow-sm" role="alert">
+                    <i class="fa fa-exclamation-triangle me-2"/> <t t-esc="request.session.pop('portal_error')"/>
+                </div>
+            </t>
+
+            <!-- Deal Negotiation Portal Card -->
             <div class="card mb-4 border-warning shadow-sm" t-if="sale_order.state in ('draft', 'sent') and not sale_order.is_negotiation_locked">
-                <div class="card-header bg-warning text-dark font-weight-bold">
-                    🤝 Deal Negotiation Portal (Round <t t-esc="sale_order.negotiation_rounds + 1"/> of <t t-esc="sale_order.max_negotiation_rounds"/>)
+                <div class="card-header bg-warning text-dark font-weight-bold d-flex justify-content-between align-items-center">
+                    <span>🤝 Deal Negotiation Portal (Round <t t-esc="sale_order.negotiation_rounds + 1"/> of <t t-esc="sale_order.max_negotiation_rounds"/>)</span>
+                    <span class="badge bg-dark text-white">Live Deal Bargaining</span>
                 </div>
                 <div class="card-body">
-                    <p class="text-muted small">
-                        Request a counter discount directly on this quotation. Our algorithmic governance node will evaluate the proposal in real time.
+                    <p class="text-muted small mb-3">
+                        Request a counter discount directly on this quotation. Our algorithmic governance engine evaluates your proposal in real time against margin constraints.
                     </p>
-                    <form t-attf-action="/my/orders/#{sale_order.id}/counter_offer" method="post" class="form-inline">
+                    <form t-attf-action="/my/orders/#{sale_order.id}/counter_offer" method="post">
                         <input type="hidden" name="access_token" t-att-value="sale_order.access_token"/>
-                        <div class="input-group mr-2 mb-2">
-                            <span class="input-group-text">Proposed Counter Discount (%)</span>
-                            <input type="number" step="0.5" min="0" max="50" name="counter_discount" class="form-control" placeholder="e.g. 12.5" required="required"/>
+                        <div class="row g-2 align-items-center">
+                            <div class="col-12 col-md-4">
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light fw-semibold">Target Discount</span>
+                                    <input type="number" step="0.5" min="0" max="50" name="counter_discount" class="form-control" placeholder="e.g. 12.5" required="required"/>
+                                    <span class="input-group-text">%</span>
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-5">
+                                <input type="text" name="notes" class="form-control" placeholder="Optional comments, concession offer, or target budget..."/>
+                            </div>
+                            <div class="col-12 col-md-3">
+                                <button type="submit" class="btn btn-warning text-dark fw-bold w-100 shadow-sm">
+                                    <i class="fa fa-paper-plane me-1"/> Submit Counter-Offer
+                                </button>
+                            </div>
                         </div>
-                        <div class="input-group mr-2 mb-2 flex-grow-1">
-                            <input type="text" name="notes" class="form-control" placeholder="Optional comments or concession offer..."/>
-                        </div>
-                        <button type="submit" class="btn btn-warning mb-2">Submit Counter-Offer</button>
                     </form>
+                    <t t-if="sale_order.last_counter_offer">
+                        <div class="mt-3 p-2 bg-light rounded border small text-muted">
+                            <i class="fa fa-history me-1 text-primary"/> <strong>Last Activity:</strong> <t t-esc="sale_order.last_counter_offer"/>
+                        </div>
+                    </t>
                 </div>
             </div>
 
-            <div class="alert alert-secondary mb-4" t-if="sale_order.is_negotiation_locked and sale_order.state in ('draft', 'sent')">
-                🔒 <strong>Negotiation Locked:</strong> Maximum permitted negotiation rounds (<t t-esc="sale_order.max_negotiation_rounds"/>) have been reached. Terms are locked for final decision.
+            <div class="alert alert-secondary mb-4 shadow-sm" t-if="sale_order.is_negotiation_locked and sale_order.state in ('draft', 'sent')">
+                🔒 <strong>Negotiation Locked:</strong> Maximum permitted negotiation rounds (<t t-esc="sale_order.max_negotiation_rounds"/>) have been reached. Terms are locked for final commercial decision. Please contact your sales representative.
             </div>
         </xpath>
     </template>
