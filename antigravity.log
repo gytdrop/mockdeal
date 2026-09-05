@@ -244,3 +244,11 @@ DETAILS: Updated CONTRACT.md, EXECUTION_PLAN.md, EXPLAINER.md (Recipes 12 & 13 f
 STATUS: Verified
 ------------------------------------------------------------------------------
 
+[2026-09-05 18:07:00] [AGENT: Antigravity] [PERSONA: Akthar]
+ACTION: Reverted Ashrith's Out-of-Scope Commits & Restored Clean Architecture
+DETAILS: Reverted commits 54d6e3e, 5ed3e80, 6ffbca2, 2871e45. Restored official '17.0.1.0.0' version tags in vantage_core and vantage_fulfillment manifests. Removed circular dashboard action from vantage_core/views/menus.xml and attached it cleanly under vantage_governance/views/dashboard_views.xml. Removed unauthorized web.login sign-up injection and unverified demo data from vantage_governance. Verified all three modules upgrade with zero errors.
+STATUS: Verified & Committed to mockdeal
+------------------------------------------------------------------------------
+
+
+
