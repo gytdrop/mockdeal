@@ -127,7 +127,11 @@
         <field name="action_id" ref="action_vantage_sales_dashboard"/>
     </record>
 
-    <!-- Attach the action to the core menu item -->
-    <menuitem id="vantage_core.menu_vantageops_dashboard" action="action_vantage_sales_dashboard"/>
+    <!-- VantageOps Dashboard Menu Item (Attached to VantageOps Root) -->
+    <menuitem id="menu_vantageops_dashboard"
+              name="Dashboard"
+              parent="vantage_core.menu_vantageops_root"
+              action="action_vantage_sales_dashboard"
+              sequence="10"/>
 
 </odoo>

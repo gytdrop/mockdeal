@@ -11,9 +11,6 @@
         'views/governance_views.xml',
         'views/portal_templates.xml',
     ],
-    'demo': [
-        'demo/demo_data.xml',
-    ],
     'installable': True,
     'application': False,
 }

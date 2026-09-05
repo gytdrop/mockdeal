@@ -8,11 +8,6 @@
 
         <!-- 2. The Header Tabs (Sub-menus mapped to Excalidraw design) -->
         
-        <!-- Dashboard Tab -->
-        <menuitem id="menu_vantageops_dashboard"
-                  name="Dashboard"
-                  parent="menu_vantageops_root"
-                  sequence="10"/>
 
         <!-- Quotations Tab (Reusing native Odoo Sales action) -->
         <menuitem id="menu_vantageops_quotations"

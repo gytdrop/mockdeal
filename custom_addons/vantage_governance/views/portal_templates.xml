@@ -30,16 +30,4 @@
             </div>
         </xpath>
     </template>
-
-    <!-- Prominent Sign Up Button on Login Page -->
-    <template id="vantage_login_signup_button" inherit_id="web.login">
-        <xpath expr="//form" position="after">
-            <div t-if="signup_enabled" class="text-center mt-3 border-top pt-3">
-                <p class="text-muted mb-2">Want to negotiate custom deals?</p>
-                <a t-attf-href="/web/signup?{{ keep_query() }}" class="btn btn-info btn-block w-100 font-weight-bold">
-                    Create an Account (Sign Up)
-                </a>
-            </div>
-        </xpath>
-    </template>
 </odoo>

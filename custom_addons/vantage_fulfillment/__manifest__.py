@@ -1,6 +1,6 @@
 {
     'name': 'VantageOps Fulfillment (Operational Execution)',
-    
+    'version': '17.0.1.0.0',
     'category': 'Inventory/Delivery',
     'summary': 'Multi-Warehouse Auto-Split & Live Upsell Engine (Ashrith)',
     'author': 'Ashrith',
