@@ -39,3 +39,8 @@ VERIFICATION: Tested ./keys and ./--keys successfully.
 COMMIT: Pending commit (.gitignore & AGENTS.md)
 SUMMARY: Nested VantageOps release folder inside mockdeal at ./VantageOps. Added VantageOps/ to .gitignore so mockdeal never tracks or stages it.
 VERIFICATION: git status confirms VantageOps is completely ignored in mockdeal.
+
+[2026-09-05 12:12:00] [AGENT: Antigravity] [PERSONA: System Setup]
+COMMIT: Pending commit (wireframes in docs/)
+SUMMARY: Integrated Excalidraw design assets and end-to-end product flow wireframes into docs/. Verified git remote tracking to https://github.com/gytdrop/mockdeal.git.
+VERIFICATION: Clean repository status.
