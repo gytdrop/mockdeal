@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Hackathon Demo Quotation -->
+        <record id="vantage_demo_sale_order_1" model="sale.order">
+            <field name="partner_id" ref="base.res_partner_2"/> <!-- Typically 'Deco Addict' -->
+            <field name="state">draft</field>
+            <!-- Pre-triggering our custom risk and split fields -->
+            <field name="blended_risk_score">18.5</field>
+            <field name="risk_approval_state">pending_approval</field>
+            <field name="has_split_requirement">True</field>
+            <field name="is_recurring_hybrid">True</field>
+        </record>
+
+        <!-- Order Line that triggers the Backorder Split (Qty > Free Stock) -->
+        <record id="vantage_demo_order_line_1" model="sale.order.line">
+            <field name="order_id" ref="vantage_demo_sale_order_1"/>
+            <field name="product_id" ref="product.product_product_4"/> <!-- Customizable Desk -->
+            <field name="product_uom_qty">50.0</field>
+            <field name="price_unit">800.0</field>
+            <!-- High discount to trigger the Risk block -->
+            <field name="discount">25.0</field>
+        </record>
+
+        <!-- Optional Product to show off Ashrith's Margin Delta Upsell -->
+        <record id="vantage_demo_order_option_1" model="sale.order.option">
+            <field name="order_id" ref="vantage_demo_sale_order_1"/>
+            <field name="product_id" ref="product.product_product_11"/> <!-- Conference Chair -->
+            <field name="quantity">5.0</field>
+            <field name="price_unit">150.0</field>
+        </record>
+    </data>
+</odoo>
