@@ -149,3 +149,8 @@ DETAILS: Synchronized in-memory Odoo model registry with deficit_qty on sale.ord
 STATUS: Verified & Live
 ------------------------------------------------------------------------------
 
+[2026-09-05 15:37:44] [AGENT: Antigravity] [PERSONA: Ashrith]
+ACTION: Commited and pushed demo_data.xml to mockdeal
+DETAILS: Generated demo_data.xml for Sale Order 34, updated __manifest__.py, and pushed to remote origin.
+STATUS: Verified
+------------------------------------------------------------------------------
