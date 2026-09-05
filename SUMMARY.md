@@ -1,21 +1,22 @@
-# 🗺️ VantageOps: System Map, Page Directory & Section Guide
+# 🗺️ VantageOps: System Map, Page Directory & Destined File Locations
 
-> **Quick-reference handbook for Akthar: All UI page names, tabs, backend headers, portal routes, and repository files.**
+> **Quick-reference handbook for Akthar: All UI page names, tabs, backend headers, portal routes, and exact file paths across `mockdeal` and `VantageOps`.**
 
 ---
 
 ## 📑 Table of Contents
-1. [Backend Odoo UI: Tabs & Page Directory](#1-backend-odoo-ui-tabs--page-directory)
-2. [Backend Odoo UI: Header Buttons & Dynamic Banners](#2-backend-odoo-ui-header-buttons--dynamic-banners)
-3. [Customer Portal: Pages & Routes](#3-customer-portal-pages--routes)
-4. [Repository Sections & Documentation Files](#4-repository-sections--documentation-files)
-5. [Keywords & Living Update Instructions](#5-keywords--living-update-instructions)
+1. [Backend Odoo UI: Tabs, Fields & File Locations](#1-backend-odoo-ui-tabs-fields--file-locations)
+2. [Backend Odoo UI: Header Buttons, Alerts & Code Locations](#2-backend-odoo-ui-header-buttons-alerts--code-locations)
+3. [Customer Portal: Pages, Views & Controller Locations](#3-customer-portal-pages-views--controller-locations)
+4. [Destined File Mapping: Mockdeal Canvas ➔ VantageOps Destination](#4-destined-file-mapping-mockdeal-canvas--vantageops-destination)
+5. [Repository Artifacts & Documentation Directory](#5-repository-artifacts--documentation-directory)
+6. [Keywords & Living Update Instructions](#6-keywords--living-update-instructions)
 
 ---
 
-## 🖥️ 1. Backend Odoo UI: Tabs & Page Directory
+## 🖥️ 1. Backend Odoo UI: Tabs, Fields & File Locations
 
-When viewing a Quotation or Sales Order in Odoo (`sale.view_order_form`), the central `<notebook>` contains three primary tabs:
+When viewing a Quotation or Sales Order in Odoo ([`sale.view_order_form`](http://localhost:8069/web#id=26&model=sale.order&view_type=form)), the central `<notebook>` contains three primary tabs:
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
@@ -25,100 +26,116 @@ When viewing a Quotation or Sales Order in Odoo (`sale.view_order_form`), the ce
 
 ### 1️⃣ Tab: `Order Lines` (`name="order_lines"`)
 * **Belongs to**: Native Odoo + `vantage_fulfillment` extension
+* **View Source File**: [`custom_addons/vantage_fulfillment/views/fulfillment_views.xml:L24-29`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_fulfillment/views/fulfillment_views.xml#L24-L29)
+* **Model Source File**: [`custom_addons/vantage_fulfillment/models/sale_order.py:L70-91`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_fulfillment/models/sale_order.py#L70-L91)
 * **Purpose**: Primary quotation workspace where line items are priced and discounted.
-* **VantageOps Custom Columns Injected into Tree**:
-  - `Margin ($)` (`margin_delta`): Shows real-time dollar profit contribution per line (`price_subtotal - cost`).
-  - `Free Stock` (`free_qty_today`): Shows currently available free stock in the quotation's primary warehouse.
-  - `Fulfillment Warehouse` (`fulfillment_warehouse_id`): Shows which specific regional warehouse fulfills this line (set automatically upon split).
+* **Injected Columns & Locations**:
+  - `Margin ($)` (`margin_delta`): Real-time dollar profit contribution per line (`price_subtotal - standard_cost`). Defined in `vantage_fulfillment/models/sale_order.py:L86`.
+  - `Free Stock` (`free_qty_today`): Available stock in the primary warehouse. Defined in `vantage_fulfillment/models/sale_order.py:L72`.
+  - `Fulfillment Warehouse` (`fulfillment_warehouse_id`): Assigned depot for the line. Defined in `vantage_fulfillment/models/sale_order.py:L84`.
 
 ---
 
 ### 2️⃣ Tab: `Risk & Approvals` (`name="page_akthar_approvals"`)
 * **Belongs to**: **Akthar** (`custom_addons/vantage_governance`)
-* **Purpose**: Commercial governance cockpit. Centralizes deal profitability metrics, approval state machine, and customer negotiation logs.
-* **Fields Inside**:
-  - **Blended Risk Score** (`blended_risk_score`): Order-wide penalty based on worst discount breach (>15%) and aggregate dollar margin loss.
-  - **Risk Approval State** (`risk_approval_state`): Current governance state (`draft` $\rightarrow$ `pending_approval` $\rightarrow$ `approved` / `rejected`).
-  - **Negotiation Rounds** (`negotiation_rounds`): Number of counter-offers submitted by the customer (e.g., `1 / 3`).
-  - **Max Negotiation Rounds** (`max_negotiation_rounds`): Ceiling for anti-haggling circuit breaker (default: `3`).
-  - **Negotiation Locked (Circuit Breaker)** (`is_negotiation_locked`): Boolean flag; turns `True` when maximum rounds are reached, disabling further portal negotiations.
-  - **Last Counter-Offer Details** (`last_counter_offer`): Audit summary of the latest customer counter-proposal.
+* **View Source File**: [`custom_addons/vantage_governance/views/governance_views.xml:L17-32`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_governance/views/governance_views.xml#L17-L32)
+* **Model Source File**: [`custom_addons/vantage_governance/models/sale_order.py:L7-20`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_governance/models/sale_order.py#L7-L20) & [`vantage_core/models/sale_order.py:L6-18`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_core/models/sale_order.py#L6-L18)
+* **Purpose**: Commercial governance cockpit. Centralizes profitability metrics, approval state, and customer negotiation logs.
+* **Fields & Defining Locations**:
+  - `blended_risk_score`: Computed risk metric. Defined in `vantage_core/models/sale_order.py:L6`.
+  - `risk_approval_state`: Selection status (`draft`, `pending_approval`, `approved`, `rejected`). Defined in `vantage_core/models/sale_order.py:L13`.
+  - `negotiation_rounds`: Integer count of counter-offers. Defined in `vantage_governance/models/sale_order.py:L7`.
+  - `max_negotiation_rounds`: Circuit breaker threshold (default: 3). Defined in `vantage_governance/models/sale_order.py:L8`.
+  - `is_negotiation_locked`: Boolean circuit breaker status. Defined in `vantage_governance/models/sale_order.py:L9`.
+  - `last_counter_offer`: Latest customer counter-offer text. Defined in `vantage_governance/models/sale_order.py:L14`.
 
 ---
 
 ### 3️⃣ Tab: `Fulfillment & Warehouses` (`name="page_ashrith_fulfillment"`)
 * **Belongs to**: **Ashrith** (`custom_addons/vantage_fulfillment`)
+* **View Source File**: [`custom_addons/vantage_fulfillment/views/fulfillment_views.xml:L32-41`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_fulfillment/views/fulfillment_views.xml#L32-L41)
+* **Model Source File**: [`custom_addons/vantage_fulfillment/models/sale_order.py:L7-17`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_fulfillment/models/sale_order.py#L7-L17)
 * **Purpose**: Operational logistics and multi-warehouse routing.
-* **Fields Inside**:
-  - **Requires Fulfillment Split** (`has_split_requirement`): Auto-computed flag that triggers when any line item's requested quantity exceeds primary warehouse available free stock.
-  - **Secondary Warehouse (Backorder)** (`secondary_warehouse_id`): Destination warehouse used to fulfill stock deficits.
+* **Fields & Defining Locations**:
+  - `has_split_requirement`: Deficit indicator. Defined in `vantage_fulfillment/models/sale_order.py:L7`.
+  - `secondary_warehouse_id`: Backorder destination warehouse. Defined in `vantage_fulfillment/models/sale_order.py:L13`.
 
 ---
 
-## 🔘 2. Backend Odoo UI: Header Buttons & Dynamic Banners
+## 🔘 2. Backend Odoo UI: Header Buttons, Alerts & Code Locations
 
 ### Header Action Buttons (`<header>`)
-| Button Name | Technical Identifier | Visibility Condition | What It Does |
-| :--- | :--- | :--- | :--- |
-| **Confirm** | `action_confirm` | Native Odoo | Validates deal. Intercepted by VantageOps: raises `UserError` and schedules Chatter task if risk score > 0 and unapproved. |
-| **Director Approve** | `action_manager_approve` | Visible when `risk_approval_state == 'pending_approval'` | Commercial Director approves deal, transitions state to `'approved'`, auto-resolves `mail.activity`, and unlocks confirmation. |
-| **Reject Deal** | `action_manager_reject` | Visible when `risk_approval_state == 'pending_approval'` | Director rejects deal, transitions state to `'rejected'`, closes activity, and logs refusal in Chatter. |
-| **Auto-Split Warehouses** | `action_split_fulfillments` | Visible when `has_split_requirement == True` and state in draft/sent | Autonomously truncates primary line to available stock and forks a child line routed to secondary warehouse. |
-| **Customer Preview** | `action_preview_sale_order` | Always in draft/sent | Switches current browser view into the authentic customer portal view for that order. |
+| Button Name | Technical Identifier | View Definition Location | Python Logic Location | What It Does |
+| :--- | :--- | :--- | :--- | :--- |
+| **Confirm** | `action_confirm` | Native Odoo `sale.view_order_form` | [`vantage_governance/models/sale_order.py:L21`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_governance/models/sale_order.py#L21) | Validates deal; intercepted to raise `UserError` and schedule Chatter task if risk score > 0 and unapproved. |
+| **Director Approve** | `action_manager_approve` | [`vantage_governance/views/governance_views.xml:L10`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_governance/views/governance_views.xml#L10) | [`vantage_governance/models/sale_order.py:L55`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_governance/models/sale_order.py#L55) | Sets `risk_approval_state = 'approved'`, auto-resolves `mail.activity`, and unlocks confirmation. |
+| **Reject Deal** | `action_manager_reject` | [`vantage_governance/views/governance_views.xml:L12`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_governance/views/governance_views.xml#L12) | [`vantage_governance/models/sale_order.py:L67`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_governance/models/sale_order.py#L67) | Sets `risk_approval_state = 'rejected'`, closes activity, and logs rejection in Chatter. |
+| **Auto-Split Warehouses** | `action_split_fulfillments` | [`vantage_fulfillment/views/fulfillment_views.xml:L10`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_fulfillment/views/fulfillment_views.xml#L10) | [`vantage_fulfillment/models/sale_order.py:L25`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_fulfillment/models/sale_order.py#L25) | Truncates primary line and forks child line routed to secondary warehouse. |
+| **Customer Preview** | `action_preview_sale_order` | Native Odoo `sale.view_order_form` | Native `addons/sale/models/sale_order.py` | Opens authentic customer portal view in current browser. |
 
 ---
 
 ### Dynamic Sheet Banners (Above Form Sheet)
 * 🔴 **Red Alert (`alert-danger`)**:
-  - *Condition*: `blended_risk_score > 0 and risk_approval_state != 'approved'`
+  - *Location*: [`custom_addons/vantage_core/views/vantage_core_views.xml:L10-15`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_core/views/vantage_core_views.xml#L10-L15)
   - *Message*: `⚠️ High-Risk Deal Detected: Blended Risk Score is [X]. Commercial approval required before confirmation.`
 * 🔵 **Blue Alert (`alert-info`)**:
-  - *Condition*: `is_recurring_hybrid == True`
+  - *Location*: [`custom_addons/vantage_core/views/vantage_core_views.xml:L16-19`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_core/views/vantage_core_views.xml#L16-L19)
   - *Message*: `🔄 Hybrid Deal: Contains both one-time products and recurring subscription contracts.`
 * 🟡 **Yellow Alert (`alert-warning`)**:
-  - *Condition*: `has_split_requirement == True`
-  - *Message*: `📦 Inventory Deficit Detected: Primary warehouse stock is insufficient. Click "Auto-Split Warehouses" to allocate across regional depots.`
+  - *Location*: [`custom_addons/vantage_fulfillment/views/fulfillment_views.xml:L15-21`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_fulfillment/views/fulfillment_views.xml#L15-L21)
+  - *Message*: `📦 Inventory Deficit Detected: Primary warehouse stock is insufficient. Click "Auto-Split Warehouses"...`
 
 ---
 
-## 🌐 3. Customer Portal: Pages & Routes
+## 🌐 3. Customer Portal: Pages, Views & Controller Locations
 
-External customers access their quotes via secure, tokenized URLs without requiring backend login credentials.
-
-| URL / Endpoint | Page / View Name | Purpose & User Experience |
-| :--- | :--- | :--- |
-| **`http://localhost:8069/my`** | **Customer Portal Home** | Overview of all customer documents (Quotations, Orders, Invoices). |
-| **`http://localhost:8069/my/quotes`** | **Quotation List** | Table of open quotations awaiting client review, acceptance, or negotiation. |
-| **`http://localhost:8069/my/orders/<id>?access_token=...`** | **Order Portal Detail** | Full quotation review page. Injects VantageOps negotiation components: |
-| *(Inside Order Portal)* | **Deal Negotiation Card** | *(Visible during Rounds 1-3)* Yellow card above line items allowing the customer to enter counter-discount % and concession notes. |
-| *(Inside Order Portal)* | **Circuit Breaker Banner** | *(Visible when Locked)* Grey locked alert stating maximum rounds have been reached and terms are frozen. |
-| **`POST /my/orders/<id>/counter_offer`** | **Counter-Offer Route** | Backend HTTP controller receiving customer input, updating discounts, recalculating risk, and posting to Chatter. |
+| URL / Route | Component | XML / Python File Location | Purpose & Experience |
+| :--- | :--- | :--- | :--- |
+| **`/my` & `/my/home`** | Portal Dashboard | Native Odoo `addons/portal/` | Overview of all customer transactions. |
+| **`/my/quotes`** | Quotation List | Native Odoo `addons/sale/` | Summary of quotations awaiting review. |
+| **`/my/orders/<id>`** | Order Portal Detail | Native `addons/sale/views/sale_portal_templates.xml` | Full customer quotation view. |
+| *(Inside Portal)* | **Deal Negotiation Card** | [`custom_addons/vantage_governance/views/portal_templates.xml:L6-26`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_governance/views/portal_templates.xml#L6-L26) | Injected card above line items allowing customer to submit counter-discount % and concession notes. |
+| *(Inside Portal)* | **Circuit Breaker Alert** | [`custom_addons/vantage_governance/views/portal_templates.xml:L28-30`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_governance/views/portal_templates.xml#L28-L30) | Banner informing customer that maximum rounds (3) have been reached and deal terms are locked. |
+| **`POST /my/orders/<id>/counter_offer`** | Counter-Offer API | [`custom_addons/vantage_governance/controllers/portal.py:L7-24`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/custom_addons/vantage_governance/controllers/portal.py#L7-L24) | Validates token, calls `action_customer_counter_offer()`, recalculates risk, and posts Chatter card. |
 
 ---
 
-## 📁 4. Repository Sections & Documentation Files
+## 🚚 4. Destined File Mapping: Mockdeal Canvas ➔ VantageOps Destination
 
-| File / Folder | Section Role | What It Contains |
-| :--- | :--- | :--- |
-| **`SUMMARY.md`** | **System & Page Map** | *(This file)* Comprehensive inventory of all UI pages, tabs, buttons, routes, and files. |
-| **`EXPLAINER.md`** | **Judge Recipe Book** | Deep technical defense guide: Tech stack table, 8 key technical terms, 6 step-by-step Q&A recipes with exact code lines and verbal talking points for judges. |
-| **`KEYS.md` / `./--keys`** | **Command Palette** | Cheat sheet of all workflow triggers (`I am Akthar`, `update explainer`, `update summary`, etc.). |
-| **`CONTRACT.md`** | **Interface Boundaries** | Data model field contracts and zero-conflict rules between Akthar and Ashrith. |
-| **`EXECUTION_PLAN.md`** | **Strategy Blueprint** | The original "Native Odoo Gigs" blueprint delivering features in < 400 lines of Python. |
-| **`custom_addons/vantage_core/`** | **Base Models** | Shared risk formula (`blended_risk_score`), approval state machine, and hybrid contract tagging. |
-| **`custom_addons/vantage_governance/`** | **Akthar's Module** | Confirmation block, Chatter activities, portal counter-offer UI, and circuit-breaker engine. |
-| **`custom_addons/vantage_fulfillment/`** | **Ashrith's Module** | Warehouse free stock scanner, auto-split fulfillment logic, and live margin delta upsell. |
-| **`antigravity.log` / `workonmyperiod.log`** | **Audit Trail** | Mandatory chronological logs of every milestone and commit. |
+This matrix defines where every file lives in the **Active Development Canvas (`mockdeal`)** and where it is destined in the **Frozen Enterprise Delivery Target (`VantageOps`)**:
+
+| Component / File | Location in `mockdeal` (Canvas) | Destined Location in `VantageOps` (Release) | Status / Rule |
+| :--- | :--- | :--- | :--- |
+| **Shared Core Addon** | `custom_addons/vantage_core/` | `VantageOps/custom_addons/vantage_core/` | ✅ **Mirrored & Pushed** |
+| **Akthar Governance Addon** | `custom_addons/vantage_governance/` | `VantageOps/custom_addons/vantage_governance/` | ✅ **Mirrored & Pushed** |
+| **Ashrith Fulfillment Addon** | `custom_addons/vantage_fulfillment/` | `VantageOps/custom_addons/vantage_fulfillment/` | ✅ **Mirrored & Pushed** |
+| **Enterprise README** | `README.md` (Canvas version) | `VantageOps/README.md` (Enterprise clean version) | ✅ **Clean Enterprise Live** |
+| **Git Exclusion Rules** | `.gitignore` | `VantageOps/.gitignore` | ✅ **Clean Enterprise Live** |
+| **Judge Recipe Book** | [`EXPLAINER.md`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/EXPLAINER.md) | *Canvas only (or optional promotion)* | 🏠 Kept in `mockdeal` |
+| **System & Page Map** | [`SUMMARY.md`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/SUMMARY.md) | *Canvas only (or optional promotion)* | 🏠 Kept in `mockdeal` |
+| **Command Palette & Helpers** | [`KEYS.md`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/KEYS.md), `./--keys`, `./keys` | *Excluded from VantageOps* | 🚫 Canvas only |
+| **Team Governance Rules** | [`AGENTS.md`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/AGENTS.md), [`CONTRACT.md`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/CONTRACT.md), [`EXECUTION_PLAN.md`](file:///home/gytdrop/Documents/HACKATHONS/2026/odoo%20hackathon/odoo%20gujarat/EXECUTION_PLAN.md) | *Excluded from VantageOps* | 🚫 Canvas only |
+| **Agent & Period Logs** | `antigravity.log`, `workonmyperiod.log` | *Excluded from VantageOps* | 🚫 Canvas only |
 
 ---
 
-## 🔄 5. Keywords & Living Update Instructions
+## 📁 5. Repository Artifacts & Documentation Directory
 
-Whenever you update views, add new tabs, or create new models, use these exact keywords in your prompts or terminal:
+* **`mockdeal` (Active Workspace)**: `/home/gytdrop/Documents/HACKATHONS/2026/odoo hackathon/odoo gujarat`
+  - Remote: [`https://github.com/gytdrop/mockdeal.git`](https://github.com/gytdrop/mockdeal.git)
+* **`VantageOps` (Destination Directory)**: `/home/gytdrop/Documents/HACKATHONS/2026/odoo hackathon/odoo gujarat/VantageOps`
+  - Remote: [`https://github.com/gytdrop/VantageOps.git`](https://github.com/gytdrop/VantageOps.git)
+
+---
+
+## 🔄 6. Keywords & Living Update Instructions
+
+Run `./--keys` or `./keys` in your terminal to see all triggers:
 
 | Keyword Trigger | What It Updates |
 | :--- | :--- |
-| **`./--keys`** or **`./keys`** | Displays the full technical command palette in your terminal anytime. |
-| **`update summary`** | Automatically scans recent UI changes, tabs, and models to synchronize **`SUMMARY.md`**. |
-| **`update explainer`** | Automatically scans recent code chunks and logic to append new recipes into **`EXPLAINER.md`**. |
-| **`write log`** | Immediately records the current work session into `antigravity.log` and `workonmyperiod.log`. |
+| **`update summary`** | Scans recent UI additions, tabs, and models to synchronize **`SUMMARY.md`**. |
+| **`update explainer`** | Scans recent code chunks and logic to append new recipes into **`EXPLAINER.md`**. |
+| **`promote to vantageops`** | Mirrors validated custom addons into `VantageOps` after confirmation. |
+| **`write log`** | Records current work session immediately into `antigravity.log` and `workonmyperiod.log`. |
