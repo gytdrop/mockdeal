@@ -278,3 +278,13 @@ DETAILS:
 5. Reset quotation S00041 negotiation rounds to 0 and configured max rounds to 5 for comprehensive live testing.
 STATUS: Verified & Live
 ------------------------------------------------------------------------------
+
+[2026-09-05 19:04:00] [AGENT: Antigravity] [PERSONA: Akthar]
+ACTION: Fixed Blended Risk Score Calculation for Within-Tier Baseline Discounts
+DETAILS:
+1. Identified mathematical defect in _compute_vantage_risk() in custom_addons/vantage_governance/models/sale_order.py: the previous formula factored unconditional total margin loss into the risk score (margin_loss_pct * 0.4), producing a 0.80 risk score for legitimate 2% discounts given to Silver-tier customers (10% ceiling) despite zero ceiling breach.
+2. Refactored _compute_vantage_risk() to penalize strictly excess discount breaches exceeding the customer tier ceiling (total_excess_discount_val and worst_breach).
+3. If no line exceeds the tier ceiling (worst_breach == 0), the blended risk score evaluates strictly to 0.0 and risk_approval_state remains 'draft'.
+4. Upgraded vantage_governance on vantage_db and recomputed S00041: blended_risk_score dropped from 0.80 to 0.0, risk_approval_state transitioned to 'draft', the red high-risk alert banner disappeared, and quotation confirmation was unblocked. Tested boundary thresholds (2% safe, 15% manager escalation, 25% finance escalation).
+STATUS: Verified & Live
+------------------------------------------------------------------------------

@@ -52,28 +52,35 @@ class SaleOrder(models.Model):
 
     @api.depends('order_line.discount', 'order_line.price_subtotal', 'order_line.product_uom_qty', 'partner_id.customer_tier')
     def _compute_vantage_risk(self):
-        """Dynamic Blended Risk Matrix factoring Customer Tiers (Bronze: 5%, Silver: 10%, Gold: 15%)"""
+        """Dynamic Blended Risk Matrix factoring Customer Tiers (Bronze: 5%, Silver: 10%, Gold: 15%).
+        Discounts within the allowable tier ceiling are safe (Risk Score = 0.0).
+        Penalties are only assessed for discount breaches exceeding the tier ceiling.
+        """
         tier_ceilings = {'bronze': 5.0, 'silver': 10.0, 'gold': 15.0}
         for order in self:
             ceiling = tier_ceilings.get(order.partner_id.customer_tier, 10.0) if order.partner_id else 10.0
             worst_breach = 0.0
-            total_discount_val = 0.0
+            total_excess_discount_val = 0.0
             total_gross_val = 0.0
 
             for line in order.order_line:
                 gross = line.price_unit * line.product_uom_qty
-                discount_amt = gross * (line.discount / 100.0)
                 total_gross_val += gross
-                total_discount_val += discount_amt
 
                 if line.discount > ceiling:
-                    worst_breach = max(worst_breach, line.discount - ceiling)
+                    breach = line.discount - ceiling
+                    worst_breach = max(worst_breach, breach)
+                    total_excess_discount_val += gross * (breach / 100.0)
 
-            margin_loss_pct = (total_discount_val / total_gross_val * 100.0) if total_gross_val > 0 else 0.0
-            score = round((worst_breach * 0.6) + (margin_loss_pct * 0.4), 2)
+            if worst_breach > 0.0 and total_gross_val > 0.0:
+                excess_margin_loss_pct = (total_excess_discount_val / total_gross_val * 100.0)
+                score = round((worst_breach * 0.6) + (excess_margin_loss_pct * 0.4), 2)
+            else:
+                score = 0.0
+
             order.blended_risk_score = score
 
-            if order.risk_approval_state not in ('approved', 'rejected', 'pending_finance'):
+            if order.risk_approval_state not in ('approved', 'rejected'):
                 if score > 0.0:
                     order.risk_approval_state = 'pending_manager'
                 else:
