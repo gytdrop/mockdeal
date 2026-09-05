@@ -23,3 +23,6 @@ ENV/
 !workonmyperiod.log
 filestore/
 sessions/
+
+# Production delivery repository (FROZEN to agents)
+VantageOps/

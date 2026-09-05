@@ -34,3 +34,8 @@ VERIFICATION: Guardrails active across all agent guidelines.
 COMMIT: Pending commit (KEYS.md)
 SUMMARY: Created KEYS.md with all technical keywords (persona triggers, logging commands, repository safety triggers, CLI shortcuts). Added executable helper scripts ./keys and ./--keys for instant terminal lookup.
 VERIFICATION: Tested ./keys and ./--keys successfully.
+
+[2026-09-05 12:05:30] [AGENT: Antigravity] [PERSONA: System Governance]
+COMMIT: Pending commit (.gitignore & AGENTS.md)
+SUMMARY: Nested VantageOps release folder inside mockdeal at ./VantageOps. Added VantageOps/ to .gitignore so mockdeal never tracks or stages it.
+VERIFICATION: git status confirms VantageOps is completely ignored in mockdeal.
