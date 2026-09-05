@@ -24,5 +24,5 @@ ENV/
 filestore/
 sessions/
 
-# Production delivery repository (FROZEN to agents)
+# Final production target (FROZEN to agents)
 VantageOps/
