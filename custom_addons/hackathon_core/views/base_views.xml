@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Tree View -->
+    <record id="view_hackathon_item_tree" model="ir.ui.view">
+        <field name="name">hackathon.item.tree</field>
+        <field name="model">hackathon.item</field>
+        <field name="arch" type="xml">
+            <tree string="Hackathon Items">
+                <field name="name"/>
+                <field name="state"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="view_hackathon_item_form" model="ir.ui.view">
+        <field name="name">hackathon.item.form</field>
+        <field name="model">hackathon.item</field>
+        <field name="arch" type="xml">
+            <form string="Hackathon Item">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="state"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_hackathon_item" model="ir.actions.act_window">
+        <field name="name">Hackathon Items</field>
+        <field name="res_model">hackathon.item</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Menu Items -->
+    <menuitem id="menu_hackathon_root" name="Hackathon App" sequence="10"/>
+    <menuitem id="menu_hackathon_item" name="Items" parent="menu_hackathon_root" action="action_hackathon_item" sequence="10"/>
+</odoo>
