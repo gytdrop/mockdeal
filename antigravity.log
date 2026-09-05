@@ -103,3 +103,8 @@ STATUS: Verified & Live.
 
 
 
+[2026-09-05 14:10:15] [AGENT: Antigravity] [PERSONA: Ashrith]
+ACTION: Updated AGENTS.md
+DETAILS: Appended the 'CLEAN CODE ONLY' guardrail to AGENTS.md, enforcing that no agent markdown files or logs should ever be copied into VantageOps.
+STATUS: Verified
+------------------------------------------------------------------------------
