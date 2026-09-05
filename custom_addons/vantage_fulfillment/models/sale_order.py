@@ -111,7 +111,7 @@ class SaleOrder(models.Model):
             if not lines_to_split:
                 raise UserError(_("No stock deficit detected across line items for split."))
 
-            sec_wh = order.secondary_warehouse_id or self.env['stock.warehouse'].search([('id', '!=', order.warehouse_id.id)], limit=1)
+            sec_wh = (order.secondary_warehouse_id or self.env['stock.warehouse'].sudo().search([('id', '!=', order.warehouse_id.id)], limit=1)).sudo()
 
             split_count = 0
             for line in lines_to_split:
