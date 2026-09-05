@@ -25,8 +25,11 @@ erDiagram
         int id PK
         string name "Quotation Reference"
         string state "draft | sent | sale | cancel"
-        string risk_approval_state "draft | pending_approval | approved | rejected"
-        float blended_risk_score "Aggregate margin deviation penalty"
+        string risk_approval_state "draft | pending_approval | pending_manager | pending_finance | approved | rejected"
+        float blended_risk_score "Aggregate margin deviation penalty relative to tier"
+        string deal_health "healthy | stalled | margin_bleed"
+        int days_inactive "Days since quote was last modified"
+        boolean discount_anomaly "Flagged if line discounts average >= 20%"
         boolean is_recurring_hybrid "Contains hardware + recurring subscription"
         int negotiation_rounds "Customer counter-offer count"
         int max_negotiation_rounds "Circuit breaker threshold (Default: 3)"
@@ -34,6 +37,12 @@ erDiagram
         string last_counter_offer "Audit log of latest negotiation"
         boolean has_split_requirement "Flagged if line qty > primary stock"
         int secondary_warehouse_id FK "Alternative warehouse for deficits"
+    }
+
+    RES_PARTNER {
+        int id PK
+        string name "Customer / Company Name"
+        string customer_tier "bronze (5%) | silver (10%) | gold (15%)"
     }
 
     SALE_ORDER_LINE {
@@ -69,10 +78,11 @@ erDiagram
 
     VANTAGE_UPSELL_RULE {
         int id PK
+        string name "Rule Name"
         int source_product_id FK "Trigger product"
         int recommended_product_id FK "Suggested accessory/upsell"
-        float discount_incentive "Optional promotional discount (%)"
-        float expected_margin_delta "Projected net margin gain ($)"
+        float margin_contribution "Estimated Profit Delta ($)"
+        string promoted_tag "Badge Tag (e.g. High Margin Pairing)"
     }
 
     SALE_ORDER_OPTION {
@@ -94,8 +104,11 @@ erDiagram
 
 | Field Name | Type | Properties | Description | Module |
 | :--- | :--- | :--- | :--- | :--- |
-| `blended_risk_score` | `Float` | `compute='_compute_vantage_risk'`, `store=True` | Weighted risk score calculated from line discounts, margin variance, and customer tier. Deals with score > 0 require Director Approval. | `vantage_core` |
-| `risk_approval_state` | `Selection` | `['draft', 'pending_approval', 'approved', 'rejected']`, `default='draft'` | State machine tracking commercial approval status. | `vantage_core` |
+| `blended_risk_score` | `Float` | `compute='_compute_vantage_risk'`, `store=True` | Weighted risk score calculated from line discounts, margin variance, and customer tier. | `vantage_core` / `vantage_governance` |
+| `risk_approval_state` | `Selection` | `['draft', 'pending_approval', 'pending_manager', 'pending_finance', 'approved', 'rejected']`, `default='draft'` | State machine tracking frontline Manager vs Finance Director approval status. | `vantage_core` / `vantage_governance` |
+| `deal_health` | `Selection` | `['healthy', 'stalled', 'margin_bleed']`, `compute='_compute_deal_health'`, `store=True` | Algorithmic deal pulse tracking inactivity and margin leakage. | `vantage_governance` |
+| `days_inactive` | `Integer` | `compute='_compute_deal_health'`, `store=True` | Elapsed days since last quotation modification. | `vantage_governance` |
+| `discount_anomaly` | `Boolean` | `compute='_compute_deal_health'`, `store=True` | Flags deals where sales rep discounts average $\ge 20\%$. | `vantage_governance` |
 | `is_recurring_hybrid` | `Boolean` | `compute='_compute_is_recurring_hybrid'`, `store=True` | True if quote contains both physical hardware and recurring subscription lines. | `vantage_core` |
 | `negotiation_rounds` | `Integer` | `default=0`, `readonly=True` | Number of counter-offers submitted by customer through the portal. | `vantage_governance` |
 | `max_negotiation_rounds` | `Integer` | `default=3` | Configurable circuit breaker threshold preventing infinite negotiation loops. | `vantage_governance` |
@@ -105,6 +118,15 @@ erDiagram
 | `secondary_warehouse_id` | `Many2one` | `comodel_name='stock.warehouse'` | Alternative warehouse targeted for backorder fulfillment splits. | `vantage_fulfillment` |
 | `billing_schedule_ids` | `One2many` | `comodel_name='vantage.billing.schedule'`, `inverse_name='order_id'` | Milestone and recurring SaaS invoice schedules linked to this deal. | `vantage_fulfillment` |
 | `billing_schedule_count`| `Integer` | `compute='_compute_billing_schedule_count'` | Display counter badge on the quotation form. | `vantage_fulfillment` |
+| `available_upsell_ids` | `Many2many`| `comodel_name='vantage.upsell.rule'`, `compute='_compute_available_upsells'` | Complementary product pairings detected based on active quotation items. | `vantage_fulfillment` |
+
+---
+
+### Model: `res.partner` (Inherited from `res.partner`)
+
+| Field Name | Type | Properties | Description | Module |
+| :--- | :--- | :--- | :--- | :--- |
+| `customer_tier` | `Selection` | `['bronze', 'silver', 'gold']`, `default='silver'`, `required=True` | Contractual customer tier determining allowable discount ceiling (Bronze 5%, Silver 10%, Gold 15%). | `vantage_governance` |
 
 ---
 
@@ -112,7 +134,7 @@ erDiagram
 
 | Field Name | Type | Properties | Description | Module |
 | :--- | :--- | :--- | :--- | :--- |
-| `line_risk_score` | `Float` | `compute='_compute_line_risk_score'`, `store=True` | Individual line penalty based on discount vs product category target margin. | `vantage_core` |
+| `line_risk_score` | `Float` | `compute='_compute_line_risk'`, `store=True` | Individual line penalty based on discount vs tier margin. | `vantage_core` |
 | `is_subscription_item` | `Boolean` | `compute='_compute_is_subscription_item'`, `store=True` | Flags whether product is categorized as a recurring subscription service. | `vantage_core` |
 | `free_qty_today` | `Float` | `compute='_compute_free_qty_today'` | Live real-time unreserved quantity in order's primary warehouse. | `vantage_fulfillment` |
 | `requires_split` | `Boolean` | `compute='_compute_requires_split'`, `store=True` | Flagged True when `product_uom_qty > free_qty_today`. | `vantage_fulfillment` |
@@ -135,7 +157,20 @@ erDiagram
 | `description` | `Char` | `required=True` | Installment narrative (e.g., "Initial Hardware Setup", "Cycle 3 of 12"). | `vantage_fulfillment` |
 | `amount` | `Monetary` | `required=True`, `currency_field='currency_id'` | Financial installment charge. | `vantage_fulfillment` |
 | `billing_type` | `Selection` | `['one_time', 'recurring']`, `required=True` | Differentiates hardware delivery billing vs SaaS subscription period. | `vantage_fulfillment` |
-| `state` | `Selection` | `['scheduled', 'invoiced', 'cancelled']`, `default='scheduled'` | Status workflow of the billing milestone. | `vantage_fulfillment` |
+| `state` | `Selection` | `['scheduled', 'invoiced', 'cancelled']`, `default='scheduled'` | Status workflow of the billing milestone (`action_mark_invoiced`). | `vantage_fulfillment` |
+
+---
+
+### Model: `vantage.upsell.rule` (New Model: `_name = 'vantage.upsell.rule'`)
+
+| Field Name | Type | Properties | Description | Module |
+| :--- | :--- | :--- | :--- | :--- |
+| `name` | `Char` | `required=True` | Rule identification name. | `vantage_fulfillment` |
+| `source_product_id` | `Many2one` | `comodel_name='product.product'`, `required=True` | Trigger product inside quotation. | `vantage_fulfillment` |
+| `recommended_product_id` | `Many2one` | `comodel_name='product.product'`, `required=True` | Recommended complementary accessory or service. | `vantage_fulfillment` |
+| `margin_contribution` | `Float` | `compute='_compute_margin_contribution'`, `store=True` | Net profit impact: `recommended_price - cost`. | `vantage_fulfillment` |
+| `promoted_tag` | `Char` | `default='High Margin Pairing'` | Promotional badge text. | `vantage_fulfillment` |
+| `currency_id` | `Many2one` | `comodel_name='res.currency'` | Currency reference for monetary display. | `vantage_fulfillment` |
 
 ---
 

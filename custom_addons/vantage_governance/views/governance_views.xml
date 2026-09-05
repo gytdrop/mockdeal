@@ -108,4 +108,18 @@
             </xpath>
         </field>
     </record>
+    <!-- Sales Order Kanban View Inheritance: Deal Health Badges -->
+    <record id="view_sale_order_kanban_inherit_vantage" model="ir.ui.view">
+        <field name="name">sale.order.kanban.inherit.vantage</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_sale_order_kanban"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[hasclass('oe_kanban_bottom_right')]" position="inside">
+                <field name="deal_health" widget="badge"
+                       decoration-success="deal_health == 'healthy'"
+                       decoration-warning="deal_health == 'stalled'"
+                       decoration-danger="deal_health == 'margin_bleed'"/>
+            </xpath>
+        </field>
+    </record>
 </odoo>

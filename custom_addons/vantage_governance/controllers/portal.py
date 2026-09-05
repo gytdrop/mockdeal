@@ -20,4 +20,4 @@ class VantageCustomerPortal(CustomerPortal):
         except Exception as e:
             request.session['portal_error'] = str(e)
 
-        return request.redirect(order_sudo.get_portal_url(access_token=access_token))
+        return request.redirect(order_sudo.get_portal_url())

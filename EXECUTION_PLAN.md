@@ -27,17 +27,22 @@ Do not rebuild native Odoo functionality. We are exploiting core Odoo patterns t
 *   **Logic:** Calculates `blended_risk_score`, defines `risk_approval_state`, and sets `is_recurring_hybrid`.
 *   **UI Target:** Powers the central Sales Dashboard metrics.
 
-### 👤 Member 1: Commercial Control (`vantage_governance`) - Akthar
-*   **Focus Areas:** "Approvals" tab and Customer Negotiation logic.
-*   **Task 1 (Backend):** Override `action_confirm()`. If risk is high and unapproved, raise `UserError` and schedule a `mail.activity` for the manager.
-*   **Task 2 (Frontend/QWeb):** Inherit `sale_order_portal_template` using QWeb XML to add a counter-offer input next to order lines in the portal view.
-*   **Task 3 (Logic):** Write `action_customer_counter_offer()` to intercept portal input, recalculate risk, log to chatter, and lock negotiation if rounds exceed the limit.
+### 👤 Member 1: Commercial Control (`vantage_governance`) - Akthar [STATUS: 100% COMPLETE]
+*   **Focus Areas:** "Risk & Approvals" tab, Two-Tier Governance, Customer Tiers, Deal Health, and Customer Negotiation.
+*   **Task 1 (Backend):** Override `action_confirm()`. If risk is high and unapproved, raise `UserError` and schedule a `mail.activity` for the manager/finance director. (✅ Done)
+*   **Task 2 (Two-Tier Approval Chain):** Frontline Sales Manager signs off (score <= 10). If score > 10, auto-escalates to Finance Director (`action_finance_approve`). (✅ Done)
+*   **Task 3 (Customer Tier Dynamic Floors):** Extends `res.partner` with Bronze (5%), Silver (10%), and Gold (15%) discount ceilings. (✅ Done)
+*   **Task 4 (Deal Health & Rep Anomaly Tracker):** Real-time `deal_health` badges (`healthy`, `stalled`, `margin_bleed`), `days_inactive` tracking, and `action_nudge_rep` task dispatcher. (✅ Done)
+*   **Task 5 (Frontend/QWeb):** Inherit `sale_order_portal_content` using QWeb XML to add counter-offer input and circuit-breaker lock card. (✅ Done)
+*   **Task 6 (Logic):** Write `action_customer_counter_offer()` to intercept portal input, recalculate risk, log to chatter, and lock negotiation at 3 rounds. (✅ Done)
 
-### 👤 Member 2: Operational Execution (`vantage_fulfillment`) - Ashrith
-*   **Focus Areas:** "Fulfillment" tab, Warehouse routing, and Upsell margins.
-*   **Task 1 (Backend):** Write `_compute_split_requirement()` to check `product_id.free_qty` against `order_line.product_uom_qty`.
-*   **Task 2 (Logic):** Write `action_split_fulfillments()` to split a line item into two if stock is short, pointing the deficit line to a secondary warehouse.
-*   **Task 3 (Frontend/XML):** Add a computed `margin_delta` field to the native Optional Products view to show live profitability impact during the Quotation Detail phase.
+### 👤 Member 2: Operational Execution (`vantage_fulfillment`) - Ashrith [STATUS: 100% COMPLETE]
+*   **Focus Areas:** "Fulfillment & Warehouses", "Hybrid Billing Schedule", "Smart Upsells", and Backorder Splits.
+*   **Task 1 (Backend):** Write `_compute_split_requirement()` and `_compute_free_qty_today()` to check location-context stock against `product_uom_qty` and calculate `deficit_qty`. (✅ Done)
+*   **Task 2 (Logic):** Write `action_split_fulfillments()` to split a line item into two if stock is short, pointing the deficit line to a secondary warehouse. (✅ Done)
+*   **Task 3 (Hybrid Billing Engine):** `vantage.billing.schedule` model & `action_generate_billing_schedule()` autonomously separating 1-time hardware charges from 12 monthly subscription cycles. (✅ Done)
+*   **Task 4 (Live Smart Upsell Engine):** `vantage.upsell.rule` model and `action_apply_upsell()` for 1-click cart insertion with live profit delta contribution. (✅ Done)
+*   **Task 5 (Frontend/XML):** Add `margin_delta` to line items & Optional Products, and add `page_billing_schedule` & `page_smart_upsell` tabs. (✅ Done)
 
 ---
 
