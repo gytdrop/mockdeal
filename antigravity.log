@@ -136,3 +136,10 @@ ACTION: Updated AGENTS.md
 DETAILS: Appended the 'CLEAN CODE ONLY' guardrail to AGENTS.md, enforcing that no agent markdown files or logs should ever be copied into VantageOps.
 STATUS: Verified
 ------------------------------------------------------------------------------
+
+[2026-09-05 14:53:00] [AGENT: Antigravity] [PERSONA: Akthar]
+ACTION: Created SCHEMA.md and Deployed Complete Schema to VantageOps
+DETAILS: Authored comprehensive SCHEMA.md containing the full Entity Relationship Diagram (Mermaid), core model data dictionaries (sale.order, sale.order.line, vantage.billing.schedule, vantage.upsell.rule, sale.order.option), and the security access rights matrix (ir.model.access.csv). Promoted SCHEMA.md, restored README.md, and synchronized custom_addons security schemas to VantageOps (Commit efcdab2 pushed to https://github.com/gytdrop/VantageOps.git).
+STATUS: Verified & Pushed to VantageOps & mockdeal.
+------------------------------------------------------------------------------
+

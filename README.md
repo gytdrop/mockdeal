@@ -38,6 +38,7 @@ Built as a native Odoo integration suite extending `sale_management`, `stock`, `
 - **Active Canvas & Prototyping (`mockdeal`):** `https://github.com/gytdrop/mockdeal.git`
 - **Final Release Destination (`VantageOps`):** `https://github.com/gytdrop/VantageOps.git` *(FROZEN TO AGENTS)*
 - [Execution Blueprint](EXECUTION_PLAN.md)
+- [Data Schema & ERD Architecture](SCHEMA.md)
 - [Vision & Architecture](VISION.md)
 - [Interface Contract](CONTRACT.md)
 - [Agent Governance & Zero-Conflict Protocol](AGENTS.md)
