@@ -1,0 +1,15 @@
+# ==============================================================================
+# CLAUDE ACTIVITY LOG — MOCKDEAL CANVAS
+# ==============================================================================
+# Mandatory Log: Claude writes to this file on every commit or when instructed.
+# Format:
+# [YYYY-MM-DD HH:MM:SS] [AGENT: Claude] [PERSONA: Akthar|Ashrith]
+# ACTION: <Commit Hash / Task Summary>
+# DETAILS: <Specific changes made>
+# STATUS: <Verified / In Progress / Blocked>
+# ------------------------------------------------------------------------------
+
+[2026-09-05 11:51:00] [AGENT: Claude] [PERSONA: System Setup]
+ACTION: Log Initialized
+DETAILS: Standing by for Claude agent session tasks. Claude must append entries here whenever performing commits or upon user request.
+STATUS: Active & Ready.

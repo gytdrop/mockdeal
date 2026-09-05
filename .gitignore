@@ -18,6 +18,8 @@ ENV/
 
 # Odoo logs and runtime
 *.log
+!antigravity.log
+!claude.log
+!workonmyperiod.log
 filestore/
 sessions/
-
