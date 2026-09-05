@@ -225,3 +225,8 @@ ACTION: Git Push to mockdeal
 DETAILS: Pushed standalone VantageOps root application, 9-grid menus, executive dashboard, control panel CSS override, and warehouse split sudo fix to origin/main.
 STATUS: Verified
 ------------------------------------------------------------------------------
+[2026-09-05 17:23:33] [AGENT: Antigravity] [PERSONA: Akthar]
+ACTION: Bootstrap 5 Dashboard UI & Live Activity Badges
+DETAILS: Updated dashboard_views.xml with thick accent border-5 cards, shadow-sm cards, pill badges, and structured live activity feed with native status badges. Added action_view_approvals method alias in vantage_dashboard.py.
+STATUS: Verified
+------------------------------------------------------------------------------

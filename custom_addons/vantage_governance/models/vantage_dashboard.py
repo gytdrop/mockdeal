@@ -124,6 +124,9 @@ class VantageSalesDashboard(models.Model):
             'target': 'current',
         }
 
+    def action_view_approvals(self):
+        return self.action_view_pending_approvals()
+
     def action_view_all_deals(self):
         return {
             'name': _('Deal Pipeline'),
