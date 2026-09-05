@@ -332,3 +332,25 @@ DETAILS:
 3. Upgraded vantage_governance on vantage_db and verified seamless execution with notification toast and page reload.
 STATUS: Verified & Committed to mockdeal
 ------------------------------------------------------------------------------
+
+[2026-09-05 22:28:30] [AGENT: Antigravity] [OWNER: Lead Engineer / Unified System]
+ACTION: Unified Codebase, Archived Siloed Blueprints, and Documented Architectural Limitations
+DETAILS:
+1. WORK DIVISION CONSOLIDATION: Dissolved previous split-persona boundaries (Akthar, Ashrith, Aftab). Consolidated all custom addons (vantage_core, vantage_governance, vantage_fulfillment) under unified single-developer ownership.
+2. DIRECTORY CLEANUP: Created 'hide/' archive directory and moved all 10 legacy/siloed markdown blueprints (AGENTS.md, CONTRACT.md, EXECUTION_PLAN.md, EXPLAINER.md, KEYS.md, MASTER_PLAN.md, SCHEMA.md, SUMMARY.md, VISION.md, old README.md) into hide/.
+3. MASTER ARCHITECTURE SPECIFICATION (README.md): Created single unified master document detailing:
+   - What we have built: 9 core operational pillars including Quotation Builder with live margin deltas, Two-tier Discount Governance with Blended Risk Scores, Action Confirm blocking with Chatter escalations, Smart Upsell engine, Multi-Warehouse Auto-Split with Shipping Cost Weighting, Backorder Consolidation, Hybrid Billing Schedule engine, Customer Negotiation Portal with 3-round Circuit Breaker, Executive Sales Cockpit, and 1-Click Turnkey Seed Data generator.
+   - What we are currently unable to do (Limitations):
+     * 2-Warehouse split limit: cannot currently perform N-way combinatorial bin-packing across 3+ warehouses simultaneously.
+     * Static subscription intervals: installment schedule generates 12 monthly slots; unable to compute fractional calendar-day pro-rata debits/credits for mid-cycle seat changes.
+     * Heuristic delivery slippage: Deal Health flags inactivity rather than true live delivery order scheduled date diffs from stock.picking.
+     * Quotation-stage stock reservation: free stock is read dynamically, but hard reservation only takes place upon sales order confirmation into state 'sale'.
+     * Automated payment capture: portal counter-acceptance is operational, but live payment capture relies on offline invoice reconciliation rather than automated payment acquirer webhooks.
+   - Hardcoded parameters requiring versatility:
+     * Customer tier discount ceilings: Bronze (5%), Silver (10%), Gold (15%) hardcoded in Python logic; must be externalized to a configurable model/settings view with category-specific ceilings.
+     * Risk score escalation thresholds: Static <= 10 (Manager) and > 10 (Finance Director); needs settings configuration.
+     * Circuit breaker limit: Static 3 rounds; needs configurable limits per customer tier or sales team.
+     * Subscription billing cadence: Fixed 12 monthly cycles; needs configurable frequencies (monthly, quarterly, annual) and proration algorithms.
+     * Warehouse freight matrix: Static flat costs and distance weights; needs matrix pricing or carrier integration.
+STATUS: Verified & Logged
+------------------------------------------------------------------------------
