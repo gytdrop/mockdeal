@@ -10,6 +10,7 @@ When interacting with AI assistants (**Antigravity** or **Claude**) or operating
 | :--- | :--- | :--- | :--- |
 | **`I am Akthar`** | **Akthar** (Commercial Control) | `custom_addons/vantage_governance/` | Margin governance, `action_confirm()` high-risk block, `mail.activity` chatter escalations, QWeb portal counter-offer UI, 3-round circuit breaker. **Forbidden from touching fulfillment or core.** |
 | **`I am Ashrith`** | **Ashrith** (Operational Execution) | `custom_addons/vantage_fulfillment/` | `_compute_split_requirement()`, `action_split_fulfillments()` multi-warehouse auto-splitting, `margin_delta` on line items & optional products. **Forbidden from touching governance or core.** |
+| **`I am Aftab`** / **`I am Afteb`** | **Aftab** (Restricted Contributor) | `mockdeal` active canvas only | **RESTRICTED: Forbidden from working in `VantageOps` and forbidden from pushing to `VantageOps`.** All work and commits must stay strictly within `mockdeal`. |
 
 ---
 
@@ -21,6 +22,8 @@ When interacting with AI assistants (**Antigravity** or **Claude**) or operating
 | **`add to your period`** | Appends the current active working session, changes made, and files modified to the global timeline. | `workonmyperiod.log` |
 | **`log period`** | Alias for `add to your period`. Flags a work milestone as complete. | `workonmyperiod.log` |
 | **`show logs`** | Displays recent entries from all agent logs for auditing. | Terminal / Chat output |
+| **`update explainer`** | Scans recent commits, code updates, and logs to synchronize and expand `EXPLAINER.md`. | `EXPLAINER.md` + `antigravity.log` / `workonmyperiod.log` |
+
 
 ---
 

@@ -18,6 +18,13 @@ Every developer and AI coding agent (Antigravity, Claude, or any LLM assistant) 
    - **STRICT PROHIBITION**: **NO AGENT IS PERMITTED TO RUN `git add`, `git commit`, OR STAGE ANYTHING DIRECTLY INSIDE `VantageOps`.**
    - Code is promoted and copied to `VantageOps` ONLY after a feature has been fully implemented, verified, and explicitly instructed by the user.
 
+3. **STRICT AFTAB RESTRICTION**:
+   - **Aftab is strictly restricted from `VantageOps`.**
+   - If the user/persona is **Aftab** (or "I am Aftab" / "I am Afteb"):
+     - **NO WORK IN `VantageOps`**: Aftab is strictly forbidden from working in, editing, staging, or creating files inside the `VantageOps` repository.
+     - **NO PUSH TO `VantageOps`**: Aftab is strictly forbidden from executing `git push` or pushing any code/branches to the `VantageOps` remote repository.
+     - All of Aftab's work, testing, and commits must remain strictly confined to `mockdeal`.
+
 ---
 
 ## 📝 Mandatory Logging Protocol (`antigravity.log`, `claude.log`, `workonmyperiod.log`)
@@ -90,7 +97,7 @@ custom_addons/
 
 ## 3. Persona Dispatcher Protocol
 
-When a user or prompt indicates **"I am Akthar"** or **"I am Ashrith"**, the AI agent MUST execute this exact protocol:
+When a user or prompt indicates **"I am Akthar"**, **"I am Ashrith"**, or **"I am Aftab"** (or "I am Afteb"), the AI agent MUST execute this exact protocol:
 
 ### Trigger: "I am Akthar"
 1. **Identify**: Acknowledge role as Akthar (Lead on Commercial Control: `vantage_governance`).
@@ -105,3 +112,10 @@ When a user or prompt indicates **"I am Akthar"** or **"I am Ashrith"**, the AI 
 3. **Inspect Progress**: Check `CONTRACT.md` and `EXECUTION_PLAN.md` for current milestone status.
 4. **Present Work Package**: Display the specific sub-tasks queued for Ashrith.
 5. **Execute & Log**: Perform the task, test locally, commit to `mockdeal`, and append to `antigravity.log`/`claude.log` and `workonmyperiod.log`.
+
+### Trigger: "I am Aftab" (or "I am Afteb")
+1. **Identify**: Acknowledge role as Aftab (Restricted Contributor).
+2. **Enforce Hard Restrictions**: **STRICTLY PROHIBITED FROM TOUCHING VantageOps.** Aftab is forbidden from working in `VantageOps`, modifying files in `VantageOps`, or running `git push` to `VantageOps`.
+3. **Restrict Scope**: Confine all activities and edits strictly to `mockdeal`.
+4. **Inspect Progress**: Check current task requirements in `mockdeal`.
+5. **Execute & Log**: Perform work strictly within `mockdeal`, test locally, commit only to `mockdeal`, and append to `antigravity.log`/`claude.log` and `workonmyperiod.log`.
