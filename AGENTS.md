@@ -16,6 +16,7 @@ Every developer and AI coding agent (Antigravity, Claude, or any LLM assistant) 
    - Location: `/home/gytdrop/Documents/HACKATHONS/2026/odoo hackathon/odoo gujarat/VantageOps` (git-ignored inside mockdeal)
    - Remote: `https://github.com/gytdrop/VantageOps.git`
    - **STRICT PROHIBITION**: **NO AGENT IS PERMITTED TO RUN `git add`, `git commit`, OR STAGE ANYTHING DIRECTLY INSIDE `VantageOps`.**
+   - **CLEAN CODE ONLY RULE**: `VantageOps` must strictly contain ONLY clean project code (`custom_addons`). Under no circumstances should agent logs (`.log`), summaries, or agent-related markdown files (`AGENTS.md`, `SUMMARY.md`, `EXPLAINER.md`, etc.) be copied or retained in `VantageOps`.
    - Code is promoted and copied to `VantageOps` ONLY after a feature has been fully implemented, verified, and explicitly instructed by the user.
 
 3. **STRICT AFTAB RESTRICTION**:
