@@ -243,6 +243,12 @@ ACTION: Synchronized Markdown Documentation & System Blueprint
 DETAILS: Updated CONTRACT.md, EXECUTION_PLAN.md, EXPLAINER.md (Recipes 12 & 13 for Executive Cockpit and Customer Self-Registration, updated 13 Native Odoo Gigs table), MASTER_PLAN.md (completed all 8 verification steps), README.md, SCHEMA.md (added vantage.sales.dashboard and security ACLs), SUMMARY.md (documented 26 production files across custom_addons, root app menus, full-width cockpit layout, portal registration), and VISION.md (Panoramic Command Node).
 STATUS: Verified
 ------------------------------------------------------------------------------
+[2026-09-05 18:13:00] [AGENT: Antigravity] [PERSONA: Akthar]
+ACTION: Centered Compact Purple Sign Up Button on Login Page
+DETAILS: Replaced stretched full-width signup button with centered, bounded (max-width: 260px) layout styled with enterprise purple (#714B67) matching Odoo login theme in custom_addons/vantage_governance/views/portal_templates.xml. Upgraded module and verified live on /web/login.
+STATUS: Verified
+------------------------------------------------------------------------------
+
 
 [2026-09-05 18:07:00] [AGENT: Antigravity] [PERSONA: Akthar]
 ACTION: Reverted Ashrith's Out-of-Scope Commits & Restored Clean Architecture

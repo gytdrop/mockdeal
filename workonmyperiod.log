@@ -262,3 +262,9 @@ ACTION: Synchronized origin/master and Rejected Destructive Ashrith Commits
 DETAILS: User requested to reject all of Ashrith's recent commits. Discovered 7 destructive commits pushed by Ashrith directly to origin/master (4c81383, 7e608ec, e42e67b, b2fd44c, 446f674, 7b0b106, 8677075) that improperly stripped models/views (has_split_requirement, available_upsell_ids, billing_schedule) and attempted invalid Odoo 18 list views. Force-aligned origin/master with clean, verified origin/main (commit 47643da). Discarded uncommitted working tree changes. Verified all modules load cleanly with zero errors.
 STATUS: Verified & Live on origin/main and origin/master
 ------------------------------------------------------------------------------
+[2026-09-05 18:13:00] [AGENT: Antigravity] [PERSONA: Akthar]
+ACTION: Centered Compact Purple Sign Up Button on Login Page
+DETAILS: Replaced stretched full-width signup button with centered, bounded (max-width: 260px) layout styled with enterprise purple (#714B67) matching Odoo login theme in custom_addons/vantage_governance/views/portal_templates.xml. Upgraded module and verified live on /web/login.
+STATUS: Verified
+------------------------------------------------------------------------------
+

@@ -30,4 +30,18 @@
             </div>
         </xpath>
     </template>
+
+    <!-- Prominent Centered Purple Sign Up Button on Login Page -->
+    <template id="vantage_login_signup_button" inherit_id="web.login">
+        <xpath expr="//form" position="after">
+            <div class="container text-center my-4">
+                <p class="text-muted small mb-2">Want to negotiate custom deals?</p>
+                <a href="/web/signup" 
+                   class="btn text-white px-4 py-2 fw-semibold rounded-3 shadow-sm"
+                   style="background-color: #714B67; border: none; max-width: 260px; display: inline-block;">
+                    <i class="fa fa-user-plus me-1"/> Create an Account (Sign Up)
+                </a>
+            </div>
+        </xpath>
+    </template>
 </odoo>
