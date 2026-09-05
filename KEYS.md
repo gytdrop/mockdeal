@@ -22,6 +22,8 @@ When interacting with AI assistants (**Antigravity** or **Claude**) or operating
 | **`add to your period`** | Appends the current active working session, changes made, and files modified to the global timeline. | `workonmyperiod.log` |
 | **`log period`** | Alias for `add to your period`. Flags a work milestone as complete. | `workonmyperiod.log` |
 | **`show logs`** | Displays recent entries from all agent logs for auditing. | Terminal / Chat output |
+| **`update explainer`** | Scans recent commits, code updates, and logs to synchronize and expand `EXPLAINER.md`. | `EXPLAINER.md` + `antigravity.log` / `workonmyperiod.log` |
+
 
 ---
 
