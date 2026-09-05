@@ -173,3 +173,48 @@ DETAILS: Fixed core dump / abort error (Signal 6 ABRT) caused by incompatible Ar
 STATUS: Verified & Live
 ------------------------------------------------------------------------------
 
+[2026-09-05 15:59:52] [AGENT: Antigravity] [PERSONA: Dual-Presenter / System]
+ACTION: Generated Full 10-Step Video Screen Record & Judge Presentation Walkthrough
+DETAILS: Captured all 10 live UI frames from Odoo 17/18 on port 8069 via Chrome headless CDP. Compiled MP4 video (vantageops_screen_record.mp4) and animated GIF (vantageops_screen_record.gif). Demonstrated vantage_core (risk matrix), vantage_governance (confirmation interceptor, 2-tier approvals, portal negotiation, circuit breaker, deal health), and vantage_fulfillment (multi-warehouse split, hybrid billing schedule, smart upsell engine).
+STATUS: Verified
+------------------------------------------------------------------------------
+[2026-09-05 16:11:00] [AGENT: Antigravity] [PERSONA: Ashrith / Operational Execution]
+ACTION: Live Demonstration of Quotation S00039 Stock Deficit & Auto-Split Warehouses
+DETAILS: Created quotation S00039 with item deficit exceeding primary warehouse free stock. Verified location-context stock checking (Corner Desk deficit 8.0, Office Chair deficit 15.0). Executed action_split_fulfillments() with sudo warehouse resolution, creating 2 child backorder lines routed to Chicago 1. Captured 11_s39_stock_deficit_detected.png and 12_s39_auto_split_completed.png, and recompiled vantageops_screen_record.mp4 and vantageops_screen_record.gif.
+STATUS: Verified
+------------------------------------------------------------------------------
+[2026-09-05 16:22:06] [AGENT: Antigravity] [PERSONA: Dual-Presenter / Executive Command]
+ACTION: Implemented VantageOps Executive Sales Dashboard & Configured Admin Login Auto-Jump
+DETAILS: Built vantage.sales.dashboard model with real-time computation of 6 core pillars: Deals (Pipeline value, deal count, avg deal), Health (Healthy, Stalled, Margin Bleed), Approvals (Tier-1 Manager, Tier-2 Finance, Approved, Rejected), Quotations (Draft, Sent, Confirmed), Subscriptions (Hybrid contracts, Scheduled MRR, Realized revenue, Milestones), and Fulfillment (Stock deficits, Forked backorders). Configured base.user_admin.action_id to automatically launch this dashboard upon login. Added top-level Sales Dashboard menuitem at sequence 1. Recompiled master 13-slide screen record video (vantageops_screen_record.mp4) and GIF.
+STATUS: Verified
+------------------------------------------------------------------------------
+[2026-09-05 16:30:54] [AGENT: Antigravity] [PERSONA: Akthar]
+ACTION: Redesign Sales Dashboard
+DETAILS: Updated dashboard_views.xml to match the dark mode mockup with 3 main KPIs and a Recent Activity feed. Updated vantage_dashboard.py to fetch recent mail.message logs for sale.orders to populate the Recent Activity feed.
+STATUS: Verified
+------------------------------------------------------------------------------
+[2026-09-05 16:41:38] [AGENT: Antigravity] [PERSONA: Akthar]
+ACTION: Revert Dashboard Color Scheme
+DETAILS: Removed dark mode inline styles from dashboard_views.xml as requested by the user, while keeping the structural layout of the Action Buttons aligned in the header row.
+STATUS: Verified
+------------------------------------------------------------------------------
+[2026-09-05 16:53:45] [AGENT: Antigravity] [PERSONA: Akthar]
+ACTION: Full-Width Sales Dashboard View
+DETAILS: Replaced fixed-width <sheet> container with full-width native <div class="p-4 w-100">, activating Odoo's o_form_nosheet layout so the dashboard covers the entire viewport width.
+STATUS: Verified
+------------------------------------------------------------------------------
+[2026-09-05 16:59:51] [AGENT: Antigravity] [PERSONA: Akthar]
+ACTION: Standalone VantageOps Application & Header Tabs
+DETAILS: Created vantage_core/views/menus.xml defining VantageOps as a top-level root app in the 9-grid menu and mapping header tabs (Dashboard, Quotations, Approvals, Fulfillment, Subscriptions, Invoices, Deal Health, Reports, Product). Updated vantage_core manifest and reloaded database.
+STATUS: Verified
+------------------------------------------------------------------------------
+[2026-09-05 17:08:52] [AGENT: Antigravity] [PERSONA: Akthar]
+ACTION: Hide Native Control Panel on Dashboard
+DETAILS: Added inline style .o_control_panel { display: none !important; } to view_vantage_sales_dashboard_form in dashboard_views.xml to hide breadcrumbs and pagination bar, creating a clean flush header.
+STATUS: Verified
+------------------------------------------------------------------------------
+[2026-09-05 17:13:41] [AGENT: Antigravity] [PERSONA: Akthar]
+ACTION: Git Push to mockdeal
+DETAILS: Pushed standalone VantageOps root application, 9-grid menus, executive dashboard, control panel CSS override, and warehouse split sudo fix to origin/main.
+STATUS: Verified
+------------------------------------------------------------------------------

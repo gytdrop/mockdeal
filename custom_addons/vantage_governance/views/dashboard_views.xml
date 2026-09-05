@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Executive Sales Dashboard Form View -->
+    <record id="view_vantage_sales_dashboard_form" model="ir.ui.view">
+        <field name="name">vantage.sales.dashboard.form</field>
+        <field name="model">vantage.sales.dashboard</field>
+        <field name="arch" type="xml">
+            <form string="Executive Sales Cockpit" create="false" edit="false" delete="false">
+                <!-- ⚡ Hides the native Odoo breadcrumb and control panel -->
+                <style>
+                    .o_control_panel { display: none !important; }
+                </style>
+                <div class="p-4 w-100">
+                    <!-- Top Header -->
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div>
+                            <h2 class="text-dark mb-1" style="font-weight: 400;">Sales Dashboard / Home</h2>
+                            <p class="text-muted mb-0" style="font-size: 0.9rem;">Central hub, links out to every module below</p>
+                        </div>
+                        <!-- Action Buttons -->
+                        <div class="d-flex gap-3">
+                            <button name="action_new_quotation" type="object" string="+ New Quotation" class="btn btn-primary" style="border-radius: 8px; padding: 10px 20px; font-weight: 500;"/>
+                            <button name="action_view_pending_approvals" type="object" string="View Approvals" class="btn btn-outline-secondary" style="border-radius: 8px; padding: 10px 20px;"/>
+                        </div>
+                    </div>
+
+                    <!-- 3 KPI Cards -->
+                    <div class="row g-3 mb-4">
+                        <!-- 1. Pending Approvals -->
+                        <div class="col-md-4">
+                            <div class="card h-100 shadow-sm bg-light" style="border-radius: 12px; border: 1px solid #dee2e6;">
+                                <div class="card-body p-4">
+                                    <h5 class="text-dark mb-2" style="font-size: 1.1rem;">Pending Approvals</h5>
+                                    <p class="text-muted mb-0" style="font-size: 0.9rem;">
+                                        <field name="total_pending_approvals" nolabel="1" class="oe_inline font-weight-bold"/> quotations waiting
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 2. Open Quotations -->
+                        <div class="col-md-4">
+                            <div class="card h-100 shadow-sm bg-light" style="border-radius: 12px; border: 1px solid #dee2e6;">
+                                <div class="card-body p-4">
+                                    <h5 class="text-dark mb-2" style="font-size: 1.1rem;">Open Quotations</h5>
+                                    <p class="text-muted mb-0" style="font-size: 0.9rem;">
+                                        <field name="draft_quotes_count" nolabel="1" class="oe_inline font-weight-bold"/> active deals
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 3. At-Risk Deals -->
+                        <div class="col-md-4">
+                            <div class="card h-100 shadow-sm bg-light" style="border-radius: 12px; border: 1px solid #dee2e6;">
+                                <div class="card-body p-4">
+                                    <h5 class="text-dark mb-2" style="font-size: 1.1rem;">At-Risk Deals</h5>
+                                    <p class="text-muted mb-0" style="font-size: 0.9rem;">
+                                        <field name="high_risk_deal_count" nolabel="1" class="oe_inline font-weight-bold"/> flagged by Deal Health
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Activity -->
+                    <div>
+                        <h5 class="mb-3 text-primary" style="font-weight: 400;">Recent Activity</h5>
+                        <field name="recent_activity_html" widget="html" nolabel="1" readonly="1" style="font-size: 0.95rem;"/>
+                    </div>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- Singleton Record for Dashboard -->
+    <record id="vantage_sales_dashboard_singleton" model="vantage.sales.dashboard">
+        <field name="name">VantageOps Executive Sales Dashboard</field>
+    </record>
+
+    <!-- Window Action: Executive Sales Cockpit -->
+    <record id="action_vantage_sales_dashboard" model="ir.actions.act_window">
+        <field name="name">Executive Sales Dashboard</field>
+        <field name="res_model">vantage.sales.dashboard</field>
+        <field name="view_mode">form</field>
+        <field name="res_id" ref="vantage_sales_dashboard_singleton"/>
+        <field name="target">current</field>
+    </record>
+
+    <!-- Configure Admin User's Default Home Action to Jump to this Dashboard on Login -->
+    <record id="base.user_admin" model="res.users">
+        <field name="action_id" ref="action_vantage_sales_dashboard"/>
+    </record>
+
+</odoo>
