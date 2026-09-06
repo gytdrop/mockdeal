@@ -26,3 +26,4 @@ sessions/
 
 # Final production target (FROZEN to agents)
 VantageOps/
+*.zip

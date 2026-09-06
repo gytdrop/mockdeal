@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_vantage_demo_walkthrough_form" model="ir.ui.view">
+        <field name="name">vantage.demo.walkthrough.form</field>
+        <field name="model">vantage.demo.walkthrough</field>
+        <field name="arch" type="xml">
+            <form string="VantageOps Interactive Live Tour &amp; Architectural Guide">
+                <sheet>
+                    <!-- Header Banner -->
+                    <div class="p-3 mb-3 text-white rounded-3 shadow-sm d-flex justify-content-between align-items-center" 
+                         style="background: linear-gradient(135deg, #714B67 0%, #4a2c42 100%);">
+                        <div>
+                            <div class="d-flex align-items-center gap-2">
+                                <h4 class="mb-0 fw-bold text-white">VantageOps Interactive Presentation Suite</h4>
+                                <span class="badge bg-light text-dark fw-bold">ODOO 17 ENTERPRISE READY</span>
+                            </div>
+                            <div class="small opacity-75 mt-1">
+                                Autonomous Deal Governance, Margin Guardrails &amp; N-Way Multi-Depot Logistics Engine
+                            </div>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button name="action_start_ui_tour" type="object" class="btn btn-sm btn-light fw-bold text-dark shadow-sm">
+                                <i class="fa fa-map-marker text-danger me-1"/> Launch Step-by-Step UI Pointers
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 5 Feature Stations Grid -->
+                    <div class="row g-3">
+                        <!-- Station 1: Margin Guardrails -->
+                        <div class="col-md-6">
+                            <div class="card h-100 p-3 shadow-sm border-0" style="border-left: 5px solid #dc2626 !important; background: #ffffff;">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="badge bg-danger text-white fw-bold">STATION 1</span>
+                                    <span class="text-danger fw-bold small"><i class="fa fa-shield"/> ORM Confirmation Guard</span>
+                                </div>
+                                <h6 class="fw-bold mb-1 text-dark">Autonomous Deal Governance &amp; Margin Interception</h6>
+                                <p class="text-muted small mb-3">
+                                    Demonstrates the blended risk scoring engine. When a rogue 50% discount is applied to a Bronze client, VantageOps locks the deal and hard-blocks confirmation at the ORM layer.
+                                </p>
+                                <div class="mt-auto">
+                                    <button name="action_open_high_risk_deal" type="object" class="btn btn-sm btn-outline-danger w-100 fw-bold">
+                                        <i class="fa fa-external-link me-1"/> Open High-Risk Deal (S00019) &amp; Test Lock
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Station 2: Multi-Depot Fulfillment -->
+                        <div class="col-md-6">
+                            <div class="card h-100 p-3 shadow-sm border-0" style="border-left: 5px solid #10b981 !important; background: #ffffff;">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="badge bg-success text-white fw-bold">STATION 2</span>
+                                    <span class="text-success fw-bold small"><i class="fa fa-cubes"/> N-Way Allocation</span>
+                                </div>
+                                <h6 class="fw-bold mb-1 text-dark">Multi-Depot Stock Deficit &amp; Auto-Split Dispatches</h6>
+                                <p class="text-muted small mb-3">
+                                    When the primary warehouse lacks inventory, the auto-split engine forks line items into discrete regional warehouse pickings (Main, East, West) with zero backorder stalls.
+                                </p>
+                                <div class="mt-auto">
+                                    <button name="action_open_split_deal" type="object" class="btn btn-sm btn-outline-success w-100 fw-bold">
+                                        <i class="fa fa-external-link me-1"/> Open Split Deal (S00039) &amp; Test Line Forking
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Station 3: 3-Round Circuit Breaker Negotiation -->
+                        <div class="col-md-6">
+                            <div class="card h-100 p-3 shadow-sm border-0" style="border-left: 5px solid #d97706 !important; background: #ffffff;">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="badge bg-warning text-dark fw-bold">STATION 3</span>
+                                    <span class="text-warning fw-bold small"><i class="fa fa-handshake-o"/> Circuit Breaker</span>
+                                </div>
+                                <h6 class="fw-bold mb-1 text-dark">Commercial Counter-Offer &amp; 3-Round Circuit Breaker</h6>
+                                <p class="text-muted small mb-3">
+                                    Reps pitch counter-offers bounded by policy floors. Simulates inbound customer negotiations directly in-app, with a strict 3-round circuit breaker logged to Chatter.
+                                </p>
+                                <div class="mt-auto">
+                                    <button name="action_open_negotiation_demo" type="object" class="btn btn-sm btn-outline-warning w-100 fw-bold text-dark">
+                                        <i class="fa fa-comments me-1"/> Test Bargaining Wizard &amp; Customer Response
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Station 4: Dual-Signoff Escalation -->
+                        <div class="col-md-6">
+                            <div class="card h-100 p-3 shadow-sm border-0" style="border-left: 5px solid #714B67 !important; background: #ffffff;">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="badge text-white fw-bold" style="background: #714B67;">STATION 4</span>
+                                    <span class="fw-bold small" style="color: #714B67;"><i class="fa fa-users"/> Dual Sign-off</span>
+                                </div>
+                                <h6 class="fw-bold mb-1 text-dark">Two-Tier Role-Based Approval Cascade</h6>
+                                <p class="text-muted small mb-3">
+                                    Minor discount variances require Sales Manager approval. High-risk commitments (&gt;10.0 risk score) escalate automatically to Finance Director sign-off.
+                                </p>
+                                <div class="mt-auto">
+                                    <button name="action_open_approvals" type="object" class="btn btn-sm w-100 fw-bold text-white" style="background: #714B67;">
+                                        <i class="fa fa-tasks me-1"/> View Pending Approvals Queue
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Station 5: Milestone Hybrid Billing -->
+                        <div class="col-md-12">
+                            <div class="card p-3 shadow-sm border-0" style="border-left: 5px solid #3b82f6 !important; background: #ffffff;">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="badge bg-primary text-white fw-bold">STATION 5</span>
+                                    <span class="text-primary fw-bold small"><i class="fa fa-calendar"/> 13 Structured Periods</span>
+                                </div>
+                                <h6 class="fw-bold mb-1 text-dark">Hybrid Milestone Revenue Recognition &amp; Recurring Billing</h6>
+                                <p class="text-muted small mb-3">
+                                    Bifurcates one-time physical hardware deliverables from recurring monthly SaaS subscriptions, generating 13 discrete automated billing installments mapped to contract milestones.
+                                </p>
+                                <div class="d-flex gap-2">
+                                    <button name="action_open_billing" type="object" class="btn btn-sm btn-outline-primary fw-bold flex-fill">
+                                        <i class="fa fa-table me-1"/> View Generated Billing Schedules
+                                    </button>
+                                    <button name="action_reseed_turnkey_data" type="object" class="btn btn-sm btn-light border fw-bold text-dark">
+                                        <i class="fa fa-refresh me-1 text-primary"/> Re-Seed Turnkey Demo Data
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </sheet>
+                <footer>
+                    <button string="Close Tour Guide" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

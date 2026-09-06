@@ -1,122 +1,148 @@
-# DealFlow360 (VantageOps) — Master Project Status & Architecture
+# VantageOps
 
-> **Notice**: All previous siloed design blueprints and split-persona markdown files have been archived into [`hide/`](./hide). 
-> This document represents the **single source of truth** for DealFlow360: what is built, current limitations, hardcoded parameters requiring versatility, and the precise roadmap for production readiness.
+**Enterprise Commercial Governance & Operational Fulfillment Engine for Odoo 17 & 18**
 
----
+VantageOps is an integrated, modular Odoo application suite engineered to protect enterprise gross margins, automate multi-tiered approval workflows, optimize multi-warehouse order fulfillment, and streamline customer portal negotiations.
 
-## 1. Executive Summary & Unified Architecture
-
-**DealFlow360** is a self-governing Sales Operations platform built as an extension to native Odoo 17. The system eliminates manual deal reviews and fragmented operations by tying together pricing governance, live upsell intelligence, multi-warehouse fulfillment splitting, hybrid subscription billing, customer portal bargaining, and executive deal health monitoring.
-
-The architecture comprises three native modular layers under `custom_addons/`:
-1. **`vantage_core`**: Shared schema extensions on `sale.order` (`blended_risk_score`, `risk_approval_state`, `is_recurring_hybrid`), `sale.order.line` (`is_subscription_item`), and top-level root application menus.
-2. **`vantage_governance`**: Two-tier discount approval engine (Manager & Finance Director), `action_confirm` block, `mail.activity` chatter escalations, customer portal counter-offer bargaining with circuit-breaker lock, and the Bootstrap 5 Executive Sales Cockpit (`vantage.sales.dashboard`).
-3. **`vantage_fulfillment`**: Multi-warehouse stock deficit engine, logistics shipping cost weighting (`stock.warehouse`), autonomous auto-split & backorder forking (`action_split_fulfillments`), backorder consolidation (`action_consolidate_backorders`), hybrid billing installments (`vantage.billing.schedule`), and live smart upsell pairing (`vantage.upsell.rule`).
+![VantageOps Command Center — Executive Overview](screenshots/Screenshot_20260906_055500.png)
 
 ---
 
-## 2. What We Have Built Till Now
+## Architecture & Module Suite
 
-| Pillar | Implemented Capability | Files / Models |
-| :--- | :--- | :--- |
-| **Quotation Builder & Margin** | Real-time calculation of net margin contribution (`margin_delta`) on order lines; visual indicator of profitability during quotation drafting. Pre-configured 1-click bundle template. | `custom_addons/vantage_fulfillment/models/sale_order.py`, `sale.order.template` |
-| **Discount Governance** | Customer tier classification (`bronze`, `silver`, `gold`) on `res.partner` with editable badge dropdowns. Dynamic Blended Risk Score penalizing excess discount breaches beyond tier limits. | `custom_addons/vantage_governance/models/sale_order.py`, `governance_views.xml` |
-| **Approval Routing & Blocking** | `action_confirm()` override: unapproved high-risk deals raise a `UserError` and automatically schedule high-priority `mail.activity` tasks. Two-tier sign-off: Manager ($\le 10$) and Finance Director ($> 10$). | `custom_addons/vantage_governance/models/sale_order.py` |
-| **Live Smart Upsell Engine** | `vantage.upsell.rule` pairing complementary products with minimum margin thresholds. Live recommendation tab shows estimated profit delta with 1-click "Add to Quote". | `custom_addons/vantage_fulfillment/models/upsell_rule.py`, `fulfillment_views.xml` |
-| **Multi-Warehouse Auto-Split** | Real-time available stock checking against primary warehouse. Autonomous line splitting truncating local fulfilled quantity and forking deficit to secondary depot. | `custom_addons/vantage_fulfillment/models/sale_order.py`, `fulfillment_views.xml` |
-| **Shipping Cost Weighting** | Extended `stock.warehouse` with `shipping_cost_weight` (distance factor) and `base_shipping_cost`. System computes estimated shipment count and total freight costs across legs. | `custom_addons/vantage_fulfillment/models/sale_order.py` |
-| **Backorder Consolidation** | `action_consolidate_backorders()`: Recombines child backorder split lines back into the primary shipment when stock arrives to minimize carrier costs. | `custom_addons/vantage_fulfillment/models/sale_order.py` |
-| **Hybrid Billing Engine** | `vantage.billing.schedule`: Separates one-time hardware/delivery charges from 12 recurring monthly subscription installments, with milestone invoicing actions. | `custom_addons/vantage_fulfillment/models/billing_schedule.py` |
-| **Customer Portal Negotiation** | Dedicated `/my/orders/<id>` portal interface. Customers can pitch line-level counter discounts. Protected by a 3-round circuit breaker; auto-reroutes to approval if counter exceeds limits. | `custom_addons/vantage_governance/controllers/portal.py`, `portal_templates.xml` |
-| **Executive Sales Cockpit** | Full-width Bootstrap 5 dashboard (`vantage.sales.dashboard`) tracking total pipeline value, healthy/stalled deals, pending approvals, and quick-action drilldowns. | `custom_addons/vantage_governance/models/vantage_dashboard.py`, `dashboard_views.xml` |
-| **1-Click Turnkey Seed Data** | Executive dashboard button (`⚡ Load Turnkey Seed Data`) instantly provisioning Bronze/Silver/Gold accounts, Main & East warehouses, stock quants, demo products, and upsell pairings. | `custom_addons/vantage_governance/models/vantage_dashboard.py` |
+VantageOps extends native Odoo models (`sale.order`, `sale.order.line`, `stock.picking`, and `portal`) cleanly without altering core code:
 
----
+```
+custom_addons/
+├── vantage_core/          # Shared foundation: Risk scoring, state machines & contract typing
+├── vantage_governance/    # Margin governance, chatter escalations & portal negotiation
+└── vantage_fulfillment/   # Multi-warehouse auto-split routing & live upsell engine
+```
 
-## 3. Current Limitations of Our Project
+### 1. `vantage_core` (Base Foundation)
+* **Blended Risk Scoring**: Real-time evaluation of quotation risk factors (discount depth, category margin variance).
+* **Approval State Machine**: State transitions managing standard draft orders, required internal approvals, and authorized states.
+* **Hybrid Contract Awareness**: Differentiates between one-off hardware/product sales and recurring service agreements.
+* **Policy Accessor (`vantage.config`)**: Typed resolver for every commercial threshold, backed by `ir.config_parameter` with shipped defaults. No business rule is a Python literal.
 
-Despite strong end-to-end functionality, several operational boundaries currently exist:
+![Commercial Kanban Pipeline with 5 Deal Stages and Live Risk Badges](screenshots/Screenshot_20260906_060033.png)
 
-1. **Two-Warehouse Split Topology**:
-   - *Current State*: The auto-split engine evaluates stock between the quotation's primary warehouse and one selected secondary warehouse.
-   - *Limitation*: If an order requires splitting across 3 or more regional depots (e.g., Main WH, East Depot, and West Hub), the algorithm currently only forks into a single child depot line.
-2. **Static Subscription Installment Cadence**:
-   - *Current State*: The billing schedule engine assumes an annual contract divided into 12 equal monthly milestones.
-   - *Limitation*: It does not natively support non-monthly cycles (quarterly, semi-annual, biennial) or mid-cycle seat change proration math (e.g. adding 5 licenses halfway through month 3).
-3. **Delivery Promise Slippage Is Heuristic**:
-   - *Current State*: Deal Health flags deals as `stalled` based on `days_inactive > 3`.
-   - *Limitation*: It does not directly compare `commitment_date` against real-time `stock.picking` scheduled dates to detect operational logistics delays.
-4. **Draft-Stage Stock Awareness**:
-   - *Current State*: Stock availability is read in real-time via `free_qty_today`.
-   - *Limitation*: It does not reserve inventory at quotation drafting; formal stock reservation only occurs once the sales order is confirmed into state `sale`.
-5. **Simulated Portal Payment**:
-   - *Current State*: The customer portal allows counter-proposals and final acceptance.
-   - *Limitation*: Online payment capture requires configuring a payment acquirer/provider (Stripe/PayPal test credentials) rather than native offline invoice reconciliation.
+### 2. `vantage_governance` (Commercial Control)
+* **Configurable Tier Policy**: `vantage.discount.tier` lets administrators define any number of tiers (Bronze, Silver, Gold), each with its own discount ceiling, manager sign-off cap and negotiation budget.
+* **Category-Specific Ceilings**: A Gold account may earn 15% on Hardware but only 8% on thin-margin Services. Resolution walks up the product category tree.
+* **Margin Floor Enforcement**: Prohibits confirmation (`action_confirm`) of quotations breaching the ceiling in force, with configurable trigger and escalation thresholds.
+* **Chatter Escalations**: Automatically dispatches `mail.activity` escalations with contextual metadata directly to finance/sales managers.
+* **Portal Counter-Offer Interface**: Secure, tokenized customer negotiation interface enabling customers to submit counter-proposals within defined guardrails.
+* **Circuit Breaker Logic**: Bounds counter-offer iterations. The budget resolves **sales team → customer tier → global setting**, and remains overridable per quotation.
 
----
+![Discount Governance & Blended Risk Scoring](screenshots/Screenshot_20260906_060304.png)
+![Margin Floor Hard Confirmation Block](screenshots/Screenshot_20260906_060349.png)
+![Deal Negotiation & Bargain Pitch Wizard](screenshots/Screenshot_20260906_060524.png)
+![Customer Portal Live Negotiation & Counter-Offer Interface](screenshots/Screenshot_20260906_060936.png)
 
-## 4. What We Hardcoded That Needs to Be Versatile
+### 3. `vantage_fulfillment` (Operational Execution)
+* **N-Way Depot Allocation**: Ranks every eligible warehouse by landed leg cost (`base_shipping_cost × shipping_cost_weight`) and greedily fills them cheapest-first across **any number** of depots — not just a primary plus one secondary. A shared stock ledger prevents two lines of the same product from double-claiming units.
+* **Leg Budget & Shortfall Reporting**: A configurable cap limits how many depots one order may ship from; demand no depot can cover is surfaced as an explicit shortfall rather than silently dropped.
+* **Backorder Routing & Consolidation**: Forks one child line per additional depot, and merges every leg back into a single shipment when stock arrives.
+* **Live Margin Delta Upsell**: Calculates and displays margin impacts for optional/accessory products directly within quotation views.
+* **Cadence-Aware Billing**: Each subscription product bills at its own cadence (monthly, quarterly, semi-annual, annual) over a configurable contract length, with cycles placed using real calendar arithmetic (`relativedelta`).
+* **Exact-Day Proration**: Calendar-aligned contracts prorate partial first/last cycles on exact day counts, and a mid-cycle wizard bills seat changes at the precise remaining-day fraction (negative deltas produce credits).
 
-To achieve full commercial versatility, the following hardcoded elements must be externalized into configurable models and settings:
-
-### 1. Customer Tier Discount Ceilings
-* **What is hardcoded**: In `custom_addons/vantage_governance/models/sale_order.py`, discount ceilings are hardcoded inside `_compute_vantage_risk()`:
-  - Bronze: fixed at 5.0%
-  - Silver: fixed at 10.0%
-  - Gold: fixed at 15.0%
-* **What it needs to do**: 
-  - Create a dedicated model `dealflow.discount.tier` (or Odoo ResConfigSettings) allowing administrators to add arbitrary tiers (e.g. Platinum, Distributor, Government) and define discount ceiling percentages per tier.
-  - Support category-specific discount ceilings (e.g., Gold customer gets 15% on Hardware, but only 10% on thin-margin Services).
-
-### 2. Risk Score Escalation Thresholds
-* **What is hardcoded**: 
-  - Score $\le 0$: Approved / Draft (Clean)
-  - $0 < \text{Score} \le 10$: Frontline Sales Manager
-  - $\text{Score} > 10$: Auto-escalates to Finance Director
-* **What it needs to do**:
-  - Make approval threshold numbers configurable via Sales Settings so companies with higher risk tolerance can adjust the Manager/Finance boundary (e.g. up to 15 points for Manager).
-
-### 3. Circuit-Breaker Negotiation Limits
-* **What is hardcoded**: 
-  - Max counter-offer rounds is hardcoded to 3 (or 5) on `sale.order`.
-* **What it needs to do**:
-  - Allow negotiation limits to be defined per customer tier or sales team (e.g. VIP Gold deals permit 5 rounds, while standard inbound deals permit only 2 rounds).
-
-### 4. Subscription Plan Billing Cycles & Proration
-* **What is hardcoded**:
-  - In `action_generate_billing_schedule()`, billing generates strictly 12 monthly periods dividing recurring amounts by 12.
-* **What it needs to do**:
-  - Add recurring frequency to products (`monthly`, `quarterly`, `annual`).
-  - Calculate exact calendar-day proration when recurring subscription lines are modified mid-billing cycle.
-
-### 5. Warehouse Shipping Matrix
-* **What is hardcoded**:
-  - Flat base freight costs ($25 / $60) and static weights (1.0x / 2.5x).
-* **What it needs to do**:
-  - Support tiered weight brackets based on total order weight (kg) or integrate with standard Odoo delivery carrier grids.
+![N-Way Multi-Depot Fulfillment Auto-Split across 3 Warehouses](screenshots/Screenshot_20260906_062503.png)
+![Hybrid Billing Milestone Generation](screenshots/Screenshot_20260906_060437.png)
+![Multi-Warehouse Outbound Operations Queue](screenshots/Screenshot_20260906_064509.png)
 
 ---
 
-## 5. Verification Checklist & Demo Guide
+## Complete Data Schema & ERD
 
-### Turnkey Verification Steps:
-1. Open **VantageOps > Dashboard** $\to$ Click **`⚡ Load Turnkey Seed Data`**.
-2. Go to **Quotations** $\to$ Create new quote for **Acme Corp (Bronze Tier)**.
-3. Select Quotation Template: **`DealFlow360 Enterprise Hybrid Bundle`** (loads 10 Servers, 1 Setup Service, 1 SaaS License).
-4. Review **Fulfillment & Warehouses** tab:
-   - Primary stock: 5 units available. Deficit: 5 units.
-   - Live shipping calculation shows: **2 shipments / $175.00** (`Main: $25` + `East: $150`).
-5. Click **"Auto-Split Warehouses"**:
-   - Order line splits: 5 units Main Warehouse, 5 units backorder East Depot.
-6. Pitch **18% Discount**:
-   - Risk score jumps to `13.0` (exceeds Bronze 5% limit by 13 points).
-   - Approval state transitions to `pending_manager`. Confirmation is blocked.
-7. Switch to **Smart Upsells** tab:
-   - Click **"Add to Quote"** on `24/7 SLA Warranty` $\to$ instant +$350 margin increase.
-8. Switch to **Hybrid Billing Schedule** tab:
-   - Click **"Generate Billing Schedule"** $\to$ separates immediate hardware charges from 12 monthly subscription installments.
-9. Executive Sign-Off:
-   - Click **Manager Approve** $\to$ auto-escalates to `pending_finance` (since score > 10).
-   - Click **Finance Approve** $\to$ state becomes `approved`.
-   - Click **Confirm** $\to$ Order confirms successfully!
+For detailed entity relationship diagrams, model specifications, field dictionaries, and security access matrices, please inspect:
+👉 **[SCHEMA.md](SCHEMA.md)**
+
+---
+
+## Fast Setup & Deployment Options
+
+VantageOps contains enterprise Python business logic, cost-optimization algorithms, and WebSocket controllers. Below are the 3 deployment options:
+
+### Option A: Local Quickstart (Zero to Running in 60s)
+
+If you already have Python 3.10+ and PostgreSQL 14+ installed:
+
+```bash
+# 1. Clone Odoo 17.0 core (if not already present)
+git clone https://github.com/odoo/odoo.git --branch 17.0 --depth 1 ~/odoo
+pip install -r ~/odoo/requirements.txt
+
+# 2. Clone VantageOps
+git clone https://github.com/gytdrop/VantageOps.git ~/VantageOps
+
+# 3. Launch Odoo connected to VantageOps custom addons
+python3 ~/odoo/odoo-bin \
+  -d vantage_db \
+  -r odoo \
+  --addons-path=~/odoo/addons,~/VantageOps/custom_addons \
+  -i vantage_core,vantage_fulfillment,vantage_governance \
+  --dev=xml,reload
+```
+Open **`http://localhost:8069`** (Default credentials: `admin` / `admin`).
+
+---
+
+### Option B: Odoo.sh Cloud Deployment (Official Odoo Cloud)
+
+> **Important Note on Odoo Online SaaS (`odoo.com`) vs Odoo.sh**:  
+> Standard Odoo Online (`subdomain.odoo.com`) is a closed multi-tenant SaaS that strictly blocks custom Python code. **Odoo.sh** is Odoo's official enterprise PaaS specifically built to host custom GitHub-backed Odoo repositories.
+
+1. Navigate to **[odoo.sh](https://www.odoo.sh)** and sign in with GitHub.
+2. Click **"Deploy My Project"** and select repository `gytdrop/VantageOps`.
+3. Set Odoo Version to `17.0` and branch to `main`.
+4. Odoo.sh automatically provisions a dedicated PostgreSQL database, builds all custom assets, and gives you a live public URL (`https://vantageops.odoo.com`). Every `git push` automatically redeploys.
+
+---
+
+### Option C: Cloud VPS / Docker (AWS, GCP, DigitalOcean)
+
+Run VantageOps on any cloud VM using standard Docker:
+```bash
+docker run -d -p 8069:8069 --name vantageops \
+  -v ~/VantageOps/custom_addons:/mnt/extra-addons \
+  -e POSTGRES_HOST=db \
+  odoo:17.0
+```
+
+---
+
+## Configuration Surface
+
+Every commercial threshold is administrator-editable — nothing is hardcoded.
+
+| Rule | Where it is configured |
+| :--- | :--- |
+| Tier ceilings, category overrides, per-tier manager cap & negotiation budget | Sales ▸ Configuration ▸ **Customer Discount Tiers** |
+| Fallback ceiling, blended-risk weights | Settings ▸ Sales ▸ **VantageOps — Discount Governance** |
+| Approval trigger, Manager/Finance boundary, default negotiation rounds | Settings ▸ Sales ▸ **VantageOps — Approval Routing** |
+| Stalled-after days, margin-bleed score, discount-anomaly % | Settings ▸ Sales ▸ **VantageOps — Deal Health** |
+| Maximum depots per order | Settings ▸ Sales ▸ **VantageOps — Multi-Depot Fulfillment** |
+| Default cadence, contract length, cycle anchor | Settings ▸ Sales ▸ **VantageOps — Subscription Billing** |
+| Per-product cadence, contract months, price basis | Product ▸ Sales tab ▸ **VantageOps Recurring Billing** |
+| Per-team negotiation rounds | Sales Team form |
+| Depot cost weight, allocation priority, split participation | Warehouse ▸ **VantageOps Logistics** tab |
+
+After changing any risk threshold, run **Settings ▸ Sales ▸ "Re-score Open Quotations"** —
+system parameters cannot participate in Odoo's `@api.depends` chain, so stored scores on
+existing quotations need an explicit recompute.
+
+---
+
+## Security & Code Standards
+
+* **Native Model Inheritance**: Built exclusively with `_inherit` on native models to guarantee standard upgrade paths and database compatibility.
+* **Security Access Control**: Standard Odoo security access matrix mapped via `security/ir.model.access.csv` for custom schedule and upsell models.
+* **Safe Portal Controllers**: Counter-offers validate signature tokens, record access rules, and enforce negotiation limits.
+* **High-Performance Computes**: Zero redundant database queries; relies on cached computed fields and bulk write operations.
+
+---
+
+## License
+This project is licensed under the [LGPL-3](https://www.gnu.org/licenses/lgpl-3.0.en.html) license.

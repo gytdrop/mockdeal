@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+        <!-- Allow cross-company warehouse and location visibility for autonomous multi-depot fulfillment -->
+        <record id="stock.stock_warehouse_comp_rule" model="ir.rule">
+            <field name="perm_read" eval="False"/>
+        </record>
+        <record id="stock.stock_location_comp_rule" model="ir.rule">
+            <field name="perm_read" eval="False"/>
+        </record>
+        <record id="stock.product_pulled_flow_comp_rule" model="ir.rule">
+            <field name="perm_read" eval="False"/>
+        </record>
+        <record id="stock.stock_location_route_comp_rule" model="ir.rule">
+            <field name="perm_read" eval="False"/>
+        </record>
+        <record id="stock.stock_picking_type_rule" model="ir.rule">
+            <field name="perm_read" eval="False"/>
+        </record>
+    </data>
+</odoo>

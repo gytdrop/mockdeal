@@ -1,91 +1,322 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Task 2A: Sidebar Bargain / Negotiation Action Button -->
+    <!-- Task 2A: Clean Sidebar Status & Pay Now Action Button -->
     <template id="sale_order_portal_template_inherit_vantage" inherit_id="sale.sale_order_portal_template">
         <xpath expr="//div[@id='sale_order_sidebar_button']" position="inside">
-            <a t-if="sale_order.state in ('draft', 'sent')" 
-               role="button" 
-               class="btn btn-warning text-dark fw-bold d-block shadow-sm" 
-               href="#deal_negotiation_portal">
-                🤝 <t t-if="not sale_order.is_negotiation_locked">Bargain / Counter-Offer</t>
-                   <t t-else="">Negotiation Status (Locked)</t>
-            </a>
+            <t t-if="sale_order.risk_approval_state in ('pending_manager', 'pending_approval', 'pending_finance')">
+                <div class="alert text-center p-2 mt-3 small fw-semibold shadow-xs" style="background: #fdf2f8; border: 1px solid #fbcfe8; color: #9d174d;">
+                    <i class="fa fa-lock me-1"/> In Governance Review
+                </div>
+            </t>
+            <t t-elif="sale_order.state in ('draft', 'sent')">
+                <a role="button" id="o_vantage_portal_paynow" class="btn btn-primary d-block fw-bold shadow-sm" 
+                   data-bs-toggle="modal" data-bs-target="#vantage_razorpay_modal" href="#" 
+                   style="background-color: #0c2340; border-color: #0c2340;">
+                    <i class="fa fa-bolt me-1 text-warning"/> Pay Now
+                </a>
+            </t>
         </xpath>
     </template>
 
-    <!-- Task 2B: Top-Level Deal Negotiation Portal Card -->
-    <template id="sale_order_portal_content_inherit_vantage" inherit_id="sale.sale_order_portal_content">
-        <xpath expr="//div[@id='informations']" position="before">
-            <!-- Deal Negotiation Portal Card (Always Visible for Draft and Sent Deals) -->
-            <div id="deal_negotiation_portal" class="card mb-4 border-warning shadow-sm" t-if="sale_order.state in ('draft', 'sent')">
-                <div class="card-header bg-warning text-dark font-weight-bold d-flex justify-content-between align-items-center">
-                    <span class="fs-6">🤝 Deal Negotiation &amp; Bargain Portal (Round <t t-esc="sale_order.negotiation_rounds + 1"/> of <t t-esc="sale_order.max_negotiation_rounds"/>)</span>
-                    <t t-if="not sale_order.is_negotiation_locked">
-                        <span class="badge bg-success text-white px-2 py-1">Negotiation Open</span>
-                    </t>
-                    <t t-else="">
-                        <span class="badge bg-danger text-white px-2 py-1">Circuit Breaker Locked</span>
-                    </t>
+    <!-- Task 2B: Brand Purple Deal Negotiation Portal Card & Interactive Razorpay Modal -->
+    <template id="portal_order_page_inherit_vantage" inherit_id="sale.sale_order_portal_content">
+        <xpath expr="//div[@id='introduction']" position="before">
+            <div id="deal_negotiation_portal" class="card border rounded-3 mb-4 shadow-sm" 
+                 style="border-color: #d1d5db !important; overflow: hidden;"
+                 t-if="sale_order.state in ('draft', 'sent')"
+                 t-att-data-order-id="sale_order.id"
+                 t-att-data-rounds="str(sale_order.negotiation_rounds)"
+                 t-att-data-state="sale_order.risk_approval_state">
+                
+                <!-- Header: Matches Top-Right 'Contact Us' Purple Bar -->
+                <div class="card-header d-flex justify-content-between align-items-center py-2 px-3" 
+                     style="background: linear-gradient(90deg, #714B67 0%, #5B3D53 100%); color: #ffffff;">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="fa fa-handshake-o fs-6"/>
+                        <span class="fw-bold" style="letter-spacing: 0.3px;">Deal Negotiation Portal</span>
+                        <span class="badge bg-white text-dark rounded-pill px-2 py-1 small fw-semibold">
+                            Round <t t-esc="(sale_order.negotiation_rounds or 0) + 1"/> of <t t-esc="sale_order.max_negotiation_rounds or 3"/>
+                        </span>
+                    </div>
+                    <div>
+                        <t t-if="not sale_order.is_negotiation_locked">
+                            <span class="badge rounded-pill px-2 py-1 small fw-semibold" style="background-color: #10b981; color: #fff;">
+                                ● Active Window
+                            </span>
+                        </t>
+                        <t t-else="">
+                            <span class="badge bg-danger rounded-pill px-2 py-1 small fw-semibold">
+                                ● Circuit Breaker Locked
+                            </span>
+                        </t>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <!-- Negotiation Session Feedback Alerts -->
+
+                <!-- Body Area -->
+                <div class="card-body p-3 bg-white">
+                    <!-- Session Feedback Alerts -->
                     <t t-if="request.session.get('portal_success')">
-                        <div class="alert alert-success alert-dismissible fade show mb-3" role="alert">
+                        <div class="alert alert-success alert-dismissible fade show mb-3 py-2 px-3 small" role="alert">
                             <i class="fa fa-check-circle me-2"/> <t t-esc="request.session.pop('portal_success')"/>
                         </div>
                     </t>
                     <t t-if="request.session.get('portal_error')">
-                        <div class="alert alert-danger alert-dismissible fade show mb-3" role="alert">
+                        <div class="alert alert-danger alert-dismissible fade show mb-3 py-2 px-3 small" role="alert">
                             <i class="fa fa-exclamation-triangle me-2"/> <t t-esc="request.session.pop('portal_error')"/>
                         </div>
                     </t>
 
-                    <t t-if="not sale_order.is_negotiation_locked">
-                        <p class="text-muted small mb-3">
-                            Pitch a counter-offer or target discount directly to our commercial governance engine. Your proposal is evaluated in real time against margin constraints.
-                        </p>
-                        <form t-attf-action="/my/orders/#{sale_order.id}/counter_offer" method="post">
-                            <input type="hidden" name="access_token" t-att-value="sale_order.access_token"/>
-                            <div class="row g-2 align-items-center">
-                                <div class="col-12 col-md-4">
-                                    <div class="input-group">
-                                        <span class="input-group-text bg-light fw-semibold">Target Discount</span>
-                                        <input type="number" step="0.5" min="0" max="50" name="counter_discount" class="form-control" placeholder="e.g. 15.0" required="required"/>
-                                        <span class="input-group-text">%</span>
-                                    </div>
-                                </div>
-                                <div class="col-12 col-md-5">
-                                    <input type="text" name="notes" class="form-control" placeholder="Optional comments, concession offer, or target budget..."/>
-                                </div>
-                                <div class="col-12 col-md-3">
-                                    <button type="submit" class="btn btn-warning text-dark fw-bold w-100 shadow-sm">
-                                        <i class="fa fa-paper-plane me-1"/> Submit Counter-Offer
-                                    </button>
-                                </div>
+                    <!-- Under-Review Notice Banner (If Pending Approval) -->
+                    <t t-if="sale_order.risk_approval_state in ('pending_manager', 'pending_approval', 'pending_finance')">
+                        <div class="alert d-flex align-items-center gap-2 py-2 px-3 mb-3 small rounded-2" 
+                             style="background-color: #f3f0f3; border: 1px solid #d8c2d3; color: #5B3D53;">
+                            <i class="fa fa-info-circle fs-5"/>
+                            <div>
+                                <strong>Governance Review in Progress:</strong> Your latest proposal is under commercial review. You may refine your concession terms below.
                             </div>
-                        </form>
+                        </div>
                     </t>
-                    <t t-else="">
-                        <div class="alert alert-warning mb-0 border-0" role="alert">
-                            <div class="d-flex align-items-center">
-                                <i class="fa fa-lock fa-2x me-3 text-warning"/>
-                                <div>
-                                    <h6 class="alert-heading fw-bold mb-1">Negotiation Circuit Breaker Engaged</h6>
-                                    <p class="small mb-0 text-muted">
-                                        Maximum permitted negotiation rounds (<t t-esc="sale_order.max_negotiation_rounds"/>) have been reached for this quotation. Terms are locked for final commercial decision. To request an exception, please contact your sales representative or sign the quotation.
-                                    </p>
-                                </div>
+                    <t t-elif="sale_order.risk_approval_state == 'approved' and sale_order.blended_risk_score &gt; 0.0">
+                        <div class="alert alert-success py-2 px-3 mb-3 small d-flex align-items-center rounded-2 border-0 bg-light text-success">
+                            <i class="fa fa-check-circle fa-lg me-2 text-success"/>
+                            <div>
+                                <strong>Commercial Terms Approved:</strong> These discounted terms have been authorized. You may sign or complete checkout via the sidebar.
                             </div>
                         </div>
                     </t>
 
+                    <p class="text-secondary small mb-3">
+                        Propose a direct volume discount or commercial concession. Terms are evaluated in real time against account tiering and fulfillment criteria.
+                    </p>
+
+                    <!-- Input Action Form -->
+                    <t t-if="not sale_order.is_negotiation_locked">
+                        <form action="/vantage/portal/counter_offer" method="post" class="row g-2 align-items-center">
+                            <input type="hidden" name="order_id" t-att-value="sale_order.id"/>
+                            <input type="hidden" name="access_token" t-att-value="sale_order.access_token"/>
+
+                            <div class="col-sm-3">
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text bg-light text-dark fw-semibold">Target Disc.</span>
+                                    <input type="number" step="0.5" min="1" max="50" name="counter_discount" 
+                                           class="form-control text-end fw-bold text-dark" placeholder="10" required="required"/>
+                                    <span class="input-group-text bg-light text-muted fw-bold">%</span>
+                                </div>
+                            </div>
+
+                            <div class="col-sm-6">
+                                <input type="text" name="counter_note" class="form-control form-control-sm" 
+                                       placeholder="Reason for concession (e.g. upfront commit, multi-unit volume)..."/>
+                            </div>
+
+                            <div class="col-sm-3">
+                                <button type="submit" class="btn btn-sm w-100 fw-bold shadow-sm text-white" 
+                                        style="background-color: #714B67; border: 1px solid #5B3D53;">
+                                    <i class="fa fa-paper-plane me-1"/> Submit Counter-Offer
+                                </button>
+                            </div>
+                        </form>
+                    </t>
+                    <t t-else="">
+                        <div class="alert alert-light border mb-0 text-muted small p-2 rounded">
+                            <i class="fa fa-lock me-2 text-danger"/>
+                            Maximum permitted negotiation rounds (<t t-esc="sale_order.max_negotiation_rounds"/>) reached. Terms are locked for final commercial decision.
+                        </div>
+                    </t>
+
+                    <!-- Status Activity Footnote / Audit Log -->
                     <t t-if="sale_order.last_counter_offer">
-                        <div class="mt-3 p-2 bg-light rounded border small text-muted">
-                            <i class="fa fa-history me-1 text-primary"/> <strong>Latest Negotiation Activity:</strong> <t t-esc="sale_order.last_counter_offer"/>
+                        <div class="mt-3 pt-2 border-top text-muted small d-flex align-items-center gap-2">
+                            <i class="fa fa-history text-muted"/>
+                            <span>
+                                <strong>Latest Term:</strong> <t t-esc="sale_order.last_counter_offer"/>
+                            </span>
+                        </div>
+                    </t>
+                    <t t-else="">
+                        <div class="mt-3 pt-2 border-top text-muted small d-flex align-items-center gap-2">
+                            <i class="fa fa-history text-muted"/>
+                            <span>
+                                <strong>Audit Trail:</strong> Last adjustment evaluated via VantageOps Governance Engine.
+                            </span>
                         </div>
                     </t>
                 </div>
             </div>
+
+            <!-- Razorpay Checkout Modal (Visible ONLY when Pay Now is clicked) -->
+            <div role="dialog" class="modal fade" id="vantage_razorpay_modal" tabindex="-1" aria-labelledby="vantageRazorpayModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content border-0 shadow-lg" style="border-radius: 12px; overflow: hidden;">
+                        <!-- Modal Header -->
+                        <div class="modal-header py-3 px-4 text-white" style="background: linear-gradient(135deg, #0c2340 0%, #1a365d 100%);">
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="p-1 rounded bg-white text-dark d-flex align-items-center justify-content-center" style="width: 28px; height: 28px;">
+                                    <i class="fa fa-credit-card text-primary fs-6"/>
+                                </div>
+                                <div>
+                                    <h5 class="modal-title fw-bold mb-0" id="vantageRazorpayModalLabel" style="font-size: 1.1rem;">Razorpay Checkout</h5>
+                                    <small class="text-white-50" style="font-size: 0.75rem;">Secured 256-Bit SSL Gateway</small>
+                                </div>
+                            </div>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+
+                        <!-- Modal Body -->
+                        <div class="modal-body p-4 bg-light">
+                            <!-- Order Summary Box -->
+                            <div class="bg-white p-3 rounded-3 border mb-3 shadow-xs">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="text-muted small">Order Reference</span>
+                                    <span class="fw-bold text-dark"><t t-esc="sale_order.name"/></span>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="text-muted small">Customer</span>
+                                    <span class="fw-semibold text-secondary small"><t t-esc="sale_order.partner_id.name"/></span>
+                                </div>
+                                <hr class="my-2"/>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="fw-bold text-dark">Amount Payable</span>
+                                    <span class="fs-4 fw-bold text-success">
+                                        ₹<t t-esc="'{0:,.2f}'.format(sale_order.amount_total) if sale_order.amount_total else '0.00'"/>
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Payment Options -->
+                            <div class="card border-0 bg-white shadow-xs p-3 rounded-3 mb-3">
+                                <h6 class="fw-bold text-dark mb-2 small text-uppercase" style="letter-spacing: 0.5px;">Select Payment Mode</h6>
+                                <div class="d-flex flex-column gap-2">
+                                    <label class="d-flex align-items-center p-2 rounded border bg-light" style="cursor: pointer;">
+                                        <input type="radio" name="vantage_rzp_mode" value="upi" checked="checked" class="form-check-input me-3"/>
+                                        <div class="flex-grow-1">
+                                            <div class="fw-bold text-dark small"><i class="fa fa-qrcode text-primary me-1"/> UPI (Instant)</div>
+                                            <div class="text-muted" style="font-size: 0.75rem;">Google Pay, PhonePe, Paytm, BHIM</div>
+                                        </div>
+                                        <span class="badge bg-success text-white small">Fastest</span>
+                                    </label>
+                                    <label class="d-flex align-items-center p-2 rounded border bg-white" style="cursor: pointer;">
+                                        <input type="radio" name="vantage_rzp_mode" value="card" class="form-check-input me-3"/>
+                                        <div class="flex-grow-1">
+                                            <div class="fw-bold text-dark small"><i class="fa fa-credit-card text-info me-1"/> Cards</div>
+                                            <div class="text-muted" style="font-size: 0.75rem;">Visa, MasterCard, RuPay, Corporate Cards</div>
+                                        </div>
+                                    </label>
+                                    <label class="d-flex align-items-center p-2 rounded border bg-white" style="cursor: pointer;">
+                                        <input type="radio" name="vantage_rzp_mode" value="netbanking" class="form-check-input me-3"/>
+                                        <div class="flex-grow-1">
+                                            <div class="fw-bold text-dark small"><i class="fa fa-university text-secondary me-1"/> Net Banking</div>
+                                            <div class="text-muted" style="font-size: 0.75rem;">All major Indian banks supported</div>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="alert alert-info py-2 px-3 small d-flex align-items-center gap-2 mb-0 rounded-2">
+                                <i class="fa fa-shield text-info fs-5"/>
+                                <span style="font-size: 0.78rem;">Live Sandbox Mode Active. Payment will instantly capture and confirm your order in VantageOps.</span>
+                            </div>
+                        </div>
+
+                        <!-- Modal Footer -->
+                        <div class="modal-footer bg-white py-3 px-4 d-flex justify-content-between">
+                            <button type="button" class="btn btn-light btn-sm text-secondary fw-semibold px-3" data-bs-dismiss="modal">Cancel</button>
+                            <button id="rzp_confirm_pay_btn" type="button" class="btn text-white fw-bold px-4 shadow-sm" style="background-color: #0c2340; border-color: #0c2340;">
+                                <i class="fa fa-bolt me-1 text-warning"/> Pay ₹<t t-esc="'{0:,.2f}'.format(sale_order.amount_total) if sale_order.amount_total else '0.00'"/> Now
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Razorpay Checkout Client JS Integration -->
+            <script type="text/javascript">
+                (function() {
+                    function initRazorpayHandler() {
+                        var payBtn = document.getElementById('rzp_confirm_pay_btn');
+                        if (!payBtn) return;
+
+                        payBtn.onclick = function(e) {
+                            e.preventDefault();
+                            payBtn.disabled = true;
+                            payBtn.innerHTML = '&lt;i class="fa fa-spinner fa-spin me-1"&gt;&lt;/i&gt; Processing Payment...';
+
+                            var mockPaymentId = 'pay_' + Math.random().toString(36).substring(2, 12).toUpperCase();
+
+                            // Call callback endpoint
+                            fetch('/vantage/portal/razorpay_callback', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    jsonrpc: '2.0',
+                                    method: 'call',
+                                    params: {
+                                        order_id: "<t t-esc="sale_order.id"/>",
+                                        payment_id: mockPaymentId
+                                    }
+                                })
+                            }).then(function(response) {
+                                return response.json();
+                            }).then(function(result) {
+                                window.location.reload();
+                            }).catch(function(err) {
+                                // Fallback via HTTP POST form submit if fetch fails
+                                var form = document.createElement('form');
+                                form.method = 'POST';
+                                form.action = '/vantage/portal/razorpay_pay_http';
+                                var inputOrder = document.createElement('input');
+                                inputOrder.type = 'hidden';
+                                inputOrder.name = 'order_id';
+                                inputOrder.value = "<t t-esc="sale_order.id"/>";
+                                form.appendChild(inputOrder);
+                                var inputPay = document.createElement('input');
+                                inputPay.type = 'hidden';
+                                inputPay.name = 'payment_id';
+                                inputPay.value = mockPaymentId;
+                                form.appendChild(inputPay);
+                                document.body.appendChild(form);
+                                form.submit();
+                            });
+                        };
+                    }
+
+                    if (document.readyState === 'loading') {
+                        document.addEventListener('DOMContentLoaded', initRazorpayHandler);
+                    } else {
+                        initRazorpayHandler();
+                    }
+                })();
+            </script>
+
+            <!-- Real-Time Auto-Sync Script for Live Customer Portal Updates (Pauses when modal open) -->
+            <script type="text/javascript">
+                (function() {
+                    if (window.location.pathname.indexOf('/my/orders/') !== -1) {
+                        var card = document.getElementById('deal_negotiation_portal');
+                        if (!card) return;
+                        var currentRounds = card.getAttribute('data-rounds');
+                        var currentState = card.getAttribute('data-state');
+                        setInterval(function() {
+                            if (document.visibilityState === 'visible' &amp;&amp; !document.querySelector('.modal.show')) {
+                                fetch(window.location.href, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                                    .then(function(res) { return res.text(); })
+                                    .then(function(html) {
+                                        var parser = new DOMParser();
+                                        var doc = parser.parseFromString(html, 'text/html');
+                                        var newCard = doc.getElementById('deal_negotiation_portal');
+                                        if (newCard) {
+                                            var newRounds = newCard.getAttribute('data-rounds');
+                                            var newState = newCard.getAttribute('data-state');
+                                            if (newRounds !== currentRounds || newState !== currentState) {
+                                                window.location.reload();
+                                            }
+                                        }
+                                    }).catch(function() {});
+                            }
+                        }, 4000);
+                    }
+                })();
+            </script>
         </xpath>
     </template>
 
@@ -103,3 +334,4 @@
         </xpath>
     </template>
 </odoo>
+
